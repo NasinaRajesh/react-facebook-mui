@@ -76,9 +76,13 @@ function RightBar({ userState }) {
   //   fullName: "Rajesh Nasina",
   // };
 
-  const handleAddFriendClick = (user) => {
+  const handleAddFriendClick = (friend) => {
    // setAllUsers((prevUsers) => prevUsers.filter((u) => u._id !== user._id));
-    console.log(user);
+    console.log(friend);
+    axios.post(`${urls.addFriend}?userId=${userId}&friendId=${friend._id}`,{
+      username : selector.user.username ,
+      profilePicture : selector.user.profilePicture
+    }).then((res)=> console.log(res)).catch((error)=> console.log(error))
   };
 
  

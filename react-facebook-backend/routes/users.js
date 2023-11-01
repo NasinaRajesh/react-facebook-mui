@@ -118,7 +118,7 @@ router.delete('/delete-user/:userId', async (req, res) => {
 router.post('/add-friend', async (req, res) => {
   try {
     const { userId, friendId } = req.query; // Assuming you send the user and friend IDs in the request body
-    const {firstName, lastName, profilePicture} = req.body ;
+    const {username, profilePicture} = req.body ;
     const user = await FacebookModel.findById(userId); // Find the user who wants to add a friend
     const friend = await FacebookModel.findById(friendId); // Find the friend
    
@@ -128,8 +128,7 @@ router.post('/add-friend', async (req, res) => {
 
     // Add the friend to the user's `friends` array
     const friendDetails = {
-      firstName,
-      lastName,
+      username,
       profilePicture
     }
     friend.friends.push(friendDetails);
