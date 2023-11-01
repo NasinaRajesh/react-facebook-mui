@@ -125,6 +125,8 @@ function LoginPage() {
   };
 
   return (
+    <>
+    <Typography>Hi kishor</Typography>
     <Container
       sx={{
         height: "100vh",
@@ -261,6 +263,7 @@ function LoginPage() {
         </CustomCard>
       </CustomBox>
     </Container>
+    </>
   );
 }
 
