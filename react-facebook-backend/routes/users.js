@@ -121,7 +121,7 @@ router.post('/add-friend', async (req, res) => {
     const {firstName, lastName, profilePicture} = req.body ;
     const user = await FacebookModel.findById(userId); // Find the user who wants to add a friend
     const friend = await FacebookModel.findById(friendId); // Find the friend
-    console.log(userId, friendId, req.query)
+   
     if (!user || !friend) {
       return res.status(404).json({ message: 'User or friend not found' });
     }
@@ -132,8 +132,8 @@ router.post('/add-friend', async (req, res) => {
       lastName,
       profilePicture
     }
-    user.friends.push(friendDetails);
-    await user.save();
+    friend.friends.push(friendDetails);
+    await friend.save();
 
     return res.status(200).json({ message: 'Friend added successfully' });
   } catch (error) {
