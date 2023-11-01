@@ -126,7 +126,7 @@ function LoginPage() {
 
   return (
     <>
-    <Typography>Hi kishor</Typography>
+    <Typography>Hi main branch</Typography>
     <Container
       sx={{
         height: "100vh",
