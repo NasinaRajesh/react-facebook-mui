@@ -126,6 +126,9 @@ function LoginPage() {
 
   return (
     
+    <>
+     <Typography>Hi main branch</Typography>
+   
     <Container
       sx={{
         height: "100vh",
@@ -262,7 +265,7 @@ function LoginPage() {
         </CustomCard>
       </CustomBox>
     </Container>
-   
+    </>
   );
 }
 
