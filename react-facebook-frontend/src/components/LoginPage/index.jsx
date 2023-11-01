@@ -139,7 +139,7 @@ function LoginPage() {
       <CustomBox>
         <Box>
           <Typography component="h1" variant="h3" color="primary">
-            Facebookkkk
+            Facebook
           </Typography>
           <Typography variant="subtitle2">
             Connect with friends and the world around you on Facebook.
