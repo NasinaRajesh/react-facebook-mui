@@ -11,6 +11,7 @@ export const urls = {
     updateprofile : `${server}/update-profile`,
     updatePostContent : `${server}/update-post` ,
     deleteAccount :    `${server}/delete-user` ,
-    getAllusers :   `${server}/all-users` 
-
+    getAllusers :   `${server}/all-users` ,
+    addFriend : `${server}/add-friend`, 
+    getFriends : `${server}/get-friends`
 }
