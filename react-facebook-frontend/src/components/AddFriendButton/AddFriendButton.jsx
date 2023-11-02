@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '@mui/material/Button';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
-const AddFriendButton = ({onClick}) => {
+const AddFriendButton = ({onClick, requestSent}) => {
   return (
     <Button
         onClick={onClick}

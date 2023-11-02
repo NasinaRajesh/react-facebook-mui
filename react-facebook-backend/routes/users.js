@@ -126,6 +126,13 @@ router.post('/add-friend', async (req, res) => {
       return res.status(404).json({ message: 'User or friend not found' });
     }
 
+     // Check if the friend is already in the user's `friends` array
+     const isFriendAlreadyAdded = friend.friends.some((friendDetails) => friendDetails.username === username);
+
+     if (isFriendAlreadyAdded) {
+       return res.status(400).json({ message: 'Friend request already sent' });
+     }
+
     // Add the friend to the user's `friends` array
     const friendDetails = {
       username,

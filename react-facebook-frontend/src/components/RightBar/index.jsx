@@ -27,6 +27,8 @@ function RightBar({ userState }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
+  const [requestSent, setRequestSent] = useState(false);
+
   const FetchUserPostDetails = () => {
     axios
       .get(`${urls.getposts}/${userId}`)
@@ -81,8 +83,13 @@ function RightBar({ userState }) {
     console.log(friend);
     axios.post(`${urls.addFriend}?userId=${userId}&friendId=${friend._id}`,{
       username : selector.user.username ,
-      profilePicture : selector.user.profilePicture
-    }).then((res)=> console.log(res)).catch((error)=> console.log(error))
+      profilePicture : friend.profilePicture
+    })
+    .then((res)=> {
+      console.log(res)
+      setRequestSent(true)
+    })
+    .catch((error)=> console.log(error.response.data.message))
   };
 
  
@@ -137,6 +144,7 @@ function RightBar({ userState }) {
                       <Box mt={1} >
                         <AddFriendButton
                           onClick={() => handleAddFriendClick(user)}
+                          requestSent={requestSent}
                         />
                       </Box>
                     </Box>
