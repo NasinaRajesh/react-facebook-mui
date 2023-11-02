@@ -51,8 +51,8 @@ function AddPost({
   const selector = useSelector((state)=> state.LoggedUser.user) ; 
   const profilePicture = useSelector((state) => state.LoggedUser.user.profilePicture);
 
-  console.log(profilePicture)
-  console.log(selector.user.profilePicture)
+  // console.log(profilePicture)
+  // console.log(selector.user.profilePicture)
   
   const [postContent, setPostContent] = useState(
     selectedPost.data ? selectedPost.data.postcontent : ""
