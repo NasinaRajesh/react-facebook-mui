@@ -121,24 +121,26 @@ router.post('/add-friend', async (req, res) => {
     const {username, profilePicture} = req.body ;
     const user = await FacebookModel.findById(userId); // Find the user who wants to add a friend
     const friend = await FacebookModel.findById(friendId); // Find the friend
-   
+    
     if (!user || !friend) {
       return res.status(404).json({ message: 'User or friend not found' });
     }
 
      // Check if the friend is already in the user's `friends` array
-     const isFriendAlreadyAdded = friend.friends.some((friendDetails) => friendDetails.username === username);
+    //  const isFriendAlreadyAdded = friend.friends.some((friendDetails) => friendDetails.username === username);
 
-     if (isFriendAlreadyAdded) {
-       return res.status(400).json({ message: 'Friend request already sent' });
-     }
+    //  if (isFriendAlreadyAdded) {
+    //    return res.status(400).json({ message: 'Friend request already sent' });
+    //  }
 
     // Add the friend to the user's `friends` array
     const friendDetails = {
+      userId,
       username,
       profilePicture
     }
-    friend.friends.push(friendDetails);
+    //console.log(friendDetails)
+    friend.friendRequests.push(friendDetails);
     await friend.save();
 
     return res.status(200).json({ message: 'Friend added successfully' });
@@ -152,18 +154,44 @@ router.get('/get-friends/:userId', async (req, res) => {
   try {
     const userId = req.params.userId; // Get the user ID from the request parameters
 
-    const user = await FacebookModel.findById(userId).populate('friends'); // Populate the 'friends' field
-
+    const user = await FacebookModel.findById(userId); // Populate the 'friends' field
+    // console.log(user)
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const friends = user.friends; // Extract the list of friends
-
-    return res.status(200).json({ friends });
+    const friendRequests = user.friendRequests; // Extract the list of friends
+    //console.log(friendRequests, "get-friends")
+    return res.status(200).json({ friendRequests });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Error getting friends' });
   }
 });
+
+// DELETE route to reject a friend request
+router.delete('/friend-requests', async (req, res) => {
+  //const requestId = parseInt(req.params.id);
+  try{
+  const {userId, requestId} = req.query 
+  console.log(userId, requestId)
+  const user =  await FacebookModel.findById(userId) ;
+  // Find the index of the request with the provided ID
+  const index = user.friendRequests.findIndex((request) => request.userId == requestId);
+  console.log(index)
+  if (index === -1) {
+    return res.status(404).json({ message: 'Friend request not found' });
+  }
+
+  // Remove the request from the array
+  user.friendRequests.splice(index, 1);
+  await user.save()
+  console.log(user.friendRequests, "friendRequests array")
+  return res.json({ message: 'Friend request rejected' });
+}catch(error){
+  console.error(error);
+    return res.status(500).json({ message: 'Error Reject friend' });
+}
+});
+
 module.exports = router;

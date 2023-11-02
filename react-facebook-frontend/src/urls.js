@@ -13,5 +13,6 @@ export const urls = {
     deleteAccount :    `${server}/delete-user` ,
     getAllusers :   `${server}/all-users` ,
     addFriend : `${server}/add-friend`, 
-    getFriends : `${server}/get-friends`
+    getFriends : `${server}/get-friends` ,
+    rejectFriendRequest : `${server}/friend-requests`
 }
