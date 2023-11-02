@@ -1,4 +1,4 @@
-import { Facebook, Mail, Notifications } from "@mui/icons-material";
+import { Check, Clear, Facebook, Mail, Notifications, PersonAdd } from "@mui/icons-material";
 import {
   AppBar,
   Avatar,
@@ -10,6 +10,10 @@ import {
   Toolbar,
   Typography,
   styled,
+  Drawer,
+  Card,
+  CardContent,
+  Button
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
@@ -18,26 +22,29 @@ import { isFocusable } from "@testing-library/user-event/dist/utils";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-// reducers 
+// reducers
 import { logOutUser } from "../UserStateSlice";
 import { updateProfilePicture } from "../UserStateSlice";
 
 function Navbar({ onPostAdded }) {
-  const dispatch = useDispatch() ;
-  const selector = useSelector((state)=> state.LoggedUser.user) ;
-  if(selector){
-    console.log(selector.user.username, selector.user.id,  "redux")
+  const dispatch = useDispatch();
+  const selector = useSelector((state) => state.LoggedUser.user);
+  if (selector) {
+    console.log(selector.user.username, selector.user.id, "redux");
   }
   const navigatesTo = useNavigate();
- 
+
   const [open, setOpen] = useState(false);
   const [profilePicture, setProfilePicture] = useState(null); // State to store the URL of the selected image
 
   // To store profilePicture from database
   const [profile, setProfile] = useState(null);
-  
+
   // State to track if a new image has been selected
   const [isNewImageSelected, setIsNewImageSelected] = useState(false);
+
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [friendRequests, setFriendRequests] = useState([]);
 
   //image upload
   const handleImageUpload = (file) => {
@@ -64,7 +71,8 @@ function Navbar({ onPostAdded }) {
     bgcolor: "background.default",
 
     color: "text.primary",
-    "& .MuiInputBase-input::placeholder": { // is a CSS selector that targets the placeholder text inside an input element with the class MuiInputBase-input. This is a class name often used by Material-UI's text input components.
+    "& .MuiInputBase-input::placeholder": {
+      // is a CSS selector that targets the placeholder text inside an input element with the class MuiInputBase-input. This is a class name often used by Material-UI's text input components.
       color: theme.palette.secondary.main, // Set the color to the secondary color
     },
   }));
@@ -73,17 +81,18 @@ function Navbar({ onPostAdded }) {
     // backgroundColor: "white",
     display: "none",
     alignItems: "center",
-    justifyContent:'center' ,
+    justifyContent: "center",
     gap: 4,
     [theme.breakpoints.up("sm")]: {
       display: "flex", // breakpoints are greater than small screen then custom styled Icon component will displayed
     },
+    cursor: "pointer",
   }));
 
   const UserBox = styled("div")(({ theme }) => ({
     // backgr"oundColor: "white",
     display: "block",
-    
+
     [theme.breakpoints.up("sm")]: {
       // breakpoints are greater than small screen then custom styled UserBox component will hide
       display: "none",
@@ -91,9 +100,8 @@ function Navbar({ onPostAdded }) {
   }));
 
   if (isNewImageSelected) {
-    
     // console.log(`Updating profile picture for user ${selector.user.id}`);
-   
+
     const imageData = profilePicture;
     //console.log(imageData, "image Data");
     axios
@@ -119,7 +127,7 @@ function Navbar({ onPostAdded }) {
       .get(`${urls.getprofile}/` + selector.user.id)
       .then((res) => {
         console.log(res.data.data.profilePicture, "navbar profile");
-        dispatch(updateProfilePicture(res.data.data.profilePicture))
+        dispatch(updateProfilePicture(res.data.data.profilePicture));
         setProfile(res.data);
       })
       .catch((error) => console.log(error));
@@ -131,10 +139,10 @@ function Navbar({ onPostAdded }) {
 
   const onLogout = () => {
     localStorage.clear();
-    dispatch(logOutUser())
+    dispatch(logOutUser());
     //setToken(null);
     //setUserState({});
-    navigatesTo("/") ; 
+    navigatesTo("/");
   };
 
   const handleDeleteAccount = (userId) => {
@@ -145,12 +153,25 @@ function Navbar({ onPostAdded }) {
         .then((res) => {
           console.log(res);
           localStorage.clear();
-          dispatch(logOutUser())
+          dispatch(logOutUser());
           navigatesTo("/");
         })
         .catch((error) => console.log(error));
     }
   };
+  console.log(friendRequests);
+  const handleFriendRequests = (userId) => {
+    setIsDrawerOpen(true)
+    axios
+      .get(`${urls.getFriends}/${userId}`)
+      .then((res) => setFriendRequests(res.data.friendRequests))
+      .catch((error) => console.log(error));
+  };
+  const handleRejectRequest = (request) => {
+    const userId = selector.user.id 
+    console.log(request, selector.user.id)
+    axios.delete(`${urls.rejectFriendRequest}?userId=${userId}&requestId=${request.userId}`).then(res=>console.log(res)).catch(error=>console.log(error))
+  }
   return (
     <AppBar position="sticky">
       <StyledToolbar>
@@ -163,13 +184,71 @@ function Navbar({ onPostAdded }) {
         </Search>
         <Icon>
           <Badge badgeContent={4} color="error">
-            <Mail />
-          </Badge>
-          <Badge badgeContent={4} color="error">
             <Notifications />
           </Badge>
+          <Badge
+            badgeContent={friendRequests?friendRequests.length:''}
+            color="error"
+            onClick={() => handleFriendRequests(selector.user.id)}
+          >
+            <PersonAdd />
+          </Badge>
+          <Drawer
+            anchor="right"
+            open={isDrawerOpen}
+            onClose={() => setIsDrawerOpen(false)}
+            
+          >
+            {/* Render the friendRequests data or any other content inside the Drawer */}
+            <Box sx={{p:2}}>
+              <Typography variant="body1">Friend Requests</Typography>
+               
+                {
+                  friendRequests.length > 0 ? friendRequests.map((request, index) => (
+                    <Card
+                    key={request.userId}
+                    sx={{ width: 300, height: 130, marginBottom: 1 , marginTop:1}}
+                  >
+                    <CardContent>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Avatar
+                            src={request.profilePicture}
+                            alt="User Avatar"
+                            sx={{ width: 60, height: 60, marginRight: 1 }}
+                          />
+                          <Typography variant="h6" component="div">
+                            {request.username}
+                          </Typography>
+                        </Box>
+                        <Box mt={1}>
+                          <Button startIcon={<Check/>} sx={{textTransform:'none'}}>Accept</Button>
+                          <Button onClick={()=>handleRejectRequest(request)} startIcon={<Clear/>} color="error" sx={{textTransform:'none'}}>Reject</Button>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                  )) : <Typography>Friend Requests are Empty</Typography>
+                }
+              
+            </Box>
+          </Drawer>
           <Box>
             <Avatar
+              title="Profile"
               src={profile ? profile.data.profilePicture : profilePicture}
               sx={{ width: 24, height: 24 }}
               onClick={(e) => {
@@ -181,16 +260,16 @@ function Navbar({ onPostAdded }) {
           <Typography variant="span">{selector.user.username}</Typography>
         </Icon>
         <UserBox>
-          <Box sx={{display:'flex', }}>
+          <Box sx={{ display: "flex" }}>
             <Avatar
-              sx={{ width: 24, height: 24, }}
+              sx={{ width: 24, height: 24 }}
               src={profile ? profile.data.profilePicture : profilePicture}
               onClick={(e) => {
                 //setAnchorEl(e.currentTarget);
                 setOpen(true);
               }}
             ></Avatar>
-            <Typography variant="span">{ selector.user.username}</Typography>
+            <Typography variant="span">{selector.user.username}</Typography>
           </Box>
         </UserBox>
       </StyledToolbar>

@@ -80,7 +80,7 @@ function RightBar({ userState }) {
 
   const handleAddFriendClick = (friend) => {
    // setAllUsers((prevUsers) => prevUsers.filter((u) => u._id !== user._id));
-    console.log(friend);
+    console.log(selector.user.profilePicture);
     axios.post(`${urls.addFriend}?userId=${userId}&friendId=${friend._id}`,{
       username : selector.user.username ,
       profilePicture : friend.profilePicture
@@ -90,7 +90,7 @@ function RightBar({ userState }) {
       setRequestSent(true)
     })
     .catch((error)=> console.log(error.response.data.message))
-  };
+   };
 
  
 
