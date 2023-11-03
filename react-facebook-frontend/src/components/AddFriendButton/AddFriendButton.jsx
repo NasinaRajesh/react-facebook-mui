@@ -3,6 +3,7 @@ import Button from '@mui/material/Button';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 const AddFriendButton = ({onClick, requestSent}) => {
+  // console.log(requestSent)
   return (
     <Button
         onClick={onClick}
@@ -18,6 +19,7 @@ const AddFriendButton = ({onClick, requestSent}) => {
         padding: '5px 16px', // Adjust padding as needed
       }}
     >
+      {/* {requestSent ? 'Request sent':'Add Friend'} */}
       Add Friend
     </Button>
   );
