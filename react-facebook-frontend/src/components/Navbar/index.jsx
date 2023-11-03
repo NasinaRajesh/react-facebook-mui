@@ -82,7 +82,7 @@ function Navbar({ onPostAdded }) {
     display: "none",
     alignItems: "center",
     justifyContent: "center",
-    gap: 4,
+    gap: 5,
     [theme.breakpoints.up("sm")]: {
       display: "flex", // breakpoints are greater than small screen then custom styled Icon component will displayed
     },
@@ -160,8 +160,13 @@ function Navbar({ onPostAdded }) {
     }
   };
   console.log(friendRequests);
+  useEffect(()=>{
+    const userId = selector.user.id ;
+    handleFriendRequests(userId)
+  },[])
   const handleFriendRequests = (userId) => {
-    setIsDrawerOpen(true)
+    console.log("handleFriendRequest called")
+    // setIsDrawerOpen(true)
     axios
       .get(`${urls.getFriends}/${userId}`)
       .then((res) => setFriendRequests(res.data.friendRequests))
@@ -170,8 +175,8 @@ function Navbar({ onPostAdded }) {
   const handleRejectRequest = (request) => {
     const userId = selector.user.id 
     console.log(request, selector.user.id)
-    axios.delete(`${urls.rejectFriendRequest}?userId=${userId}&requestId=${request.userId}`).then(res=>console.log(res)).catch(error=>console.log(error))
-  }
+    axios.delete(`${urls.rejectFriendRequest}?userId=${userId}&requestId=${request.userId}`).then(res=>handleFriendRequests(userId)).catch(error=>console.log(error))
+  } 
   return (
     <AppBar position="sticky">
       <StyledToolbar>
@@ -183,13 +188,17 @@ function Navbar({ onPostAdded }) {
           <InputBase placeholder="Search..." />
         </Search>
         <Icon>
-          <Badge badgeContent={4} color="error">
+          <Badge  color="error">
             <Notifications />
           </Badge>
           <Badge
             badgeContent={friendRequests?friendRequests.length:''}
             color="error"
-            onClick={() => handleFriendRequests(selector.user.id)}
+            onClick={() => {
+              setIsDrawerOpen(true) 
+              handleFriendRequests(selector.user.id)
+            }
+          }
           >
             <PersonAdd />
           </Badge>
@@ -228,7 +237,7 @@ function Navbar({ onPostAdded }) {
                           <Avatar
                             src={request.profilePicture}
                             alt="User Avatar"
-                            sx={{ width: 60, height: 60, marginRight: 1 }}
+                            sx={{ width: 60, height: 60, marginRight: 1, }}
                           />
                           <Typography variant="h6" component="div">
                             {request.username}

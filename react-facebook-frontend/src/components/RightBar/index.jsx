@@ -83,7 +83,7 @@ function RightBar({ userState }) {
     console.log(selector.user.profilePicture);
     axios.post(`${urls.addFriend}?userId=${userId}&friendId=${friend._id}`,{
       username : selector.user.username ,
-      profilePicture : friend.profilePicture
+      profilePicture : selector.user.profilePicture
     })
     .then((res)=> {
       console.log(res)

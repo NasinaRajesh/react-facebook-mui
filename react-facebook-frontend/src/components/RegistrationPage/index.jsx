@@ -16,7 +16,7 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-
+import {useNavigate } from "react-router-dom";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 
@@ -78,7 +78,7 @@ const CustomBox = styled(Box)(({ theme }) => ({
 }));
 
 function RegistrationPage() {
-  //const navigatesTo = useNavigate();
+  const navigatesTo = useNavigate();
   const [isUserExit, setIsUserExist] = useState("");
 
   const [password, setPassword] = useState("");
@@ -123,6 +123,9 @@ function RegistrationPage() {
 
         console.log(decodedToken);
         setIsUserExist(decodedToken.user.msg);
+        setTimeout(()=>{
+          navigatesTo('/')
+        },1000)
       })
       .catch((error) => {
         console.log(error);
