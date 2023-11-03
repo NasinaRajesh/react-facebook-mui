@@ -163,7 +163,7 @@ function Navbar({ onPostAdded }) {
   useEffect(()=>{
     const userId = selector.user.id ;
     handleFriendRequests(userId)
-  },[])
+  },[selector.user.id])
   const handleFriendRequests = (userId) => {
     console.log("handleFriendRequest called")
     // setIsDrawerOpen(true)
@@ -174,9 +174,22 @@ function Navbar({ onPostAdded }) {
   };
   const handleRejectRequest = (request) => {
     const userId = selector.user.id 
-    console.log(request, selector.user.id)
+    //console.log(request, selector.user.id)
     axios.delete(`${urls.rejectFriendRequest}?userId=${userId}&requestId=${request.userId}`).then(res=>handleFriendRequests(userId)).catch(error=>console.log(error))
   } 
+  const handleAcceptRequest = (requestUser) => {
+    //console.log(requestUser)
+    const userId = selector.user.id ;
+    const requestId = requestUser.userId ;
+    axios.post(`${urls.acceptFriendRequest}?userId=${userId}&requestId=${requestId}`,{
+      requestUser : requestUser
+    })
+    .then((res)=> {
+      console.log(res)
+      handleFriendRequests(userId)
+    })
+    .catch((error) => console.log(error))
+  }
   return (
     <AppBar position="sticky">
       <StyledToolbar>
@@ -244,13 +257,13 @@ function Navbar({ onPostAdded }) {
                           </Typography>
                         </Box>
                         <Box mt={1}>
-                          <Button startIcon={<Check/>} sx={{textTransform:'none'}}>Accept</Button>
+                          <Button onClick={()=>handleAcceptRequest(request)} startIcon={<Check/>} sx={{textTransform:'none'}}>Accept</Button>
                           <Button onClick={()=>handleRejectRequest(request)} startIcon={<Clear/>} color="error" sx={{textTransform:'none'}}>Reject</Button>
                         </Box>
                       </Box>
                     </CardContent>
                   </Card>
-                  )) : <Typography>Friend Requests are Empty</Typography>
+                  )) : <Typography variant="body2" sx={{textAlign:'center',p:5}}>empty...</Typography>
                 }
               
             </Box>
