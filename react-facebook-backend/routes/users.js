@@ -43,31 +43,7 @@ router.post(
 router.post('/create-post/:id',FacebookController.createPost) ; 
   
 // To get all Posts
-
-// router.get('/get-posts/:id',async(req,res)=>{
-//   const userId = req.params.id ;
-//   try{
-//     const user = await FacebookModel.findById(userId).select(posts);
-
-//       if (!user) {
-//         return res.status(404).json({ error: 'User not found.' });
-//       }
-
-//       res.status(200).json(user.posts,{ message: 'Fetching user Posts successfully.' });
-
-//   }
-//   catch(error){
-//     console.error('Error fetching user posts:', error);
-//       res.status(500).json({ error: 'Internal server error.' });
-//     }
-
-// })
-
-// get user posts 
-
 router.get('/get-posts/:id', FacebookController.getPosts);
-
-
 
 // to get profilePicture 
 
@@ -170,11 +146,11 @@ router.get('/get-friends/:userId', async (req, res) => {
 });
 
 // DELETE route to reject a friend request
-router.delete('/friend-requests', async (req, res) => {
+router.delete('/reject-friend-requests', async (req, res) => {
   //const requestId = parseInt(req.params.id);
   try{
   const {userId, requestId} = req.query 
-  console.log(userId, requestId)
+  //console.log(userId, requestId)
   const user =  await FacebookModel.findById(userId) ;
   // Find the index of the request with the provided ID
   const index = user.friendRequests.findIndex((request) => request.userId == requestId);
@@ -186,12 +162,37 @@ router.delete('/friend-requests', async (req, res) => {
   // Remove the request from the array
   user.friendRequests.splice(index, 1);
   await user.save()
-  console.log(user.friendRequests, "friendRequests array")
+  //console.log(user.friendRequests, "friendRequests array")
   return res.json({ message: 'Friend request rejected' });
 }catch(error){
   console.error(error);
     return res.status(500).json({ message: 'Error Reject friend' });
 }
 });
+
+router.post('/accept-friend-request', async (req,res)=>{
+  const {userId, requestId} = req.query ;
+  console.log(userId, requestId)
+try{
+  const user = await FacebookModel.findById(userId) ;
+
+  if(!user){
+    return res.status(404).json({message : 'User Not Found'})
+  }
+  user.friends.push(req.body)
+  
+  const index = user.friendRequests.findIndex((request)=> request.userId == requestId) ;
+  user.friendRequests.splice(index,1) ;
+  await user.save()
+  console.log(user.friends, "accept friend")
+  console.log(user.friendRequests, "friend requests")
+  return res.status(200).json({message: 'Friend request accepted'})
+  
+} catch(error){
+  console.log(error) ;
+  return res.status(500).json({message: 'Error while accepting friend request'})
+}
+  
+})
 
 module.exports = router;
