@@ -15,5 +15,6 @@ export const urls = {
     addFriend : `${server}/add-friend`, 
     getFriends : `${server}/get-friends` ,
     rejectFriendRequest : `${server}/reject-friend-requests`,
-    acceptFriendRequest : `${server}/accept-friend-request`
+    acceptFriendRequest : `${server}/accept-friend-request` ,
+    toggleAddFriendButtonText : `${server}/add-friend-button`
 }

@@ -13,11 +13,10 @@ import CardContent from "@mui/material/CardContent";
 
 import "./index.css";
 import AddFriendButton from "../AddFriendButton/AddFriendButton";
-import CloseIcon from '@mui/icons-material/Close'; 
+import CloseIcon from "@mui/icons-material/Close";
 import { useSelector } from "react-redux";
 function RightBar({ userState }) {
-
-  const selector = useSelector((state)=> state.LoggedUser.user) ; 
+  const selector = useSelector((state) => state.LoggedUser.user);
 
   const userId = selector.user.id;
   const [userPosts, setUserPosts] = useState([]);
@@ -53,15 +52,13 @@ function RightBar({ userState }) {
   };
 
   useEffect(() => {
-    console.log("useEffect called in RightBar component without selector")
+    console.log("useEffect called in RightBar component without selector");
     if (selector) {
-      console.log("useEffect called in RightBar component with selector")
+      console.log("useEffect called in RightBar component with selector");
       FetchUserPostDetails();
       FetchAllUsers();
     }
   }, [userId, selector]);
-
- 
 
   const handleImageClick = (postId) => {
     setSelectedImage(postId);
@@ -72,27 +69,33 @@ function RightBar({ userState }) {
     setModalOpen(false);
   };
 
-  // let user = {
-  //   avatar:
-  //     "https://img.freepik.com/premium-vector/illustration-dussehra-festival-celebration_23-2150784756.jpg?size=626&ext=jpg",
-  //   fullName: "Rajesh Nasina",
-  // };
-
   const handleAddFriendClick = (friend) => {
-   // setAllUsers((prevUsers) => prevUsers.filter((u) => u._id !== user._id));
+    // setAllUsers((prevUsers) => prevUsers.filter((u) => u._id !== user._id));
     console.log(selector.user.profilePicture);
-    axios.post(`${urls.addFriend}?userId=${userId}&friendId=${friend._id}`,{
-      username : selector.user.username ,
-      profilePicture : selector.user.profilePicture
-    })
-    .then((res)=> {
-      console.log(res)
-      setRequestSent(true)
-    })
-    .catch((error)=> console.log(error.response.data.message))
-   };
+    axios
+      .post(`${urls.addFriend}?userId=${userId}&friendId=${friend._id}`, {
+        username: selector.user.username,
+        profilePicture: selector.user.profilePicture,
+      })
+      .then((res) => {
+        console.log(res);
 
- 
+        toggleAddFriendButtonText(friend._id);
+      })
+      .catch((error) => console.log(error.response.data.message));
+  };
+
+  const toggleAddFriendButtonText = (userId) => {
+    console.log("toggleAddFriendButtonText called", userId)
+    //const userId = selector.user.id;
+    axios
+      .patch(`${urls.toggleAddFriendButtonText}/${userId}`)
+      .then((res) => {
+        console.log(res.data.addFriend);
+        setRequestSent(res.data.addFriend);
+      })
+      .catch((error) => console.log(error));
+  };
 
   return (
     <Box flex={2} p={2} sx={{ display: { xs: "none", sm: "block" } }}>
@@ -141,7 +144,7 @@ function RightBar({ userState }) {
                           }`}
                         </Typography>
                       </Box>
-                      <Box mt={1} >
+                      <Box mt={1}>
                         <AddFriendButton
                           onClick={() => handleAddFriendClick(user)}
                           requestSent={requestSent}
@@ -168,7 +171,7 @@ function RightBar({ userState }) {
           <Typography variant="body2" sx={{ textAlign: "center" }}>
             Loading...
           </Typography>
-        ) : ( 
+        ) : (
           <ImageList cols={4} rowHeight={100} gap={3}>
             {/* Map over userPosts and create ImageListItem components */}
             {userPosts
@@ -189,174 +192,32 @@ function RightBar({ userState }) {
         {/* Modal to display the selected image */}
         {modalOpen && (
           <div>
-            <div style={{ position: "relative",  }}>
+            <div style={{ position: "relative" }}>
               <img
                 src={selectedImage}
                 style={{ width: "100%", height: "100%" }}
               />
-              <CloseIcon  
+              <CloseIcon
                 onClick={closeModal}
                 style={{
                   position: "absolute",
                   top: 0,
                   right: 0,
                   background: "transparent",
-                  
+
                   cursor: "pointer",
-                  backgroundColor:'#ffff',
-                  borderRadius : '20px',
-                  color : 'grey',
-                  fontWeight: 'bold',
-                  padding: '5px',
-                  fontSize : '30px',
-                  margin: '2px'
-                  
+                  backgroundColor: "#ffff",
+                  borderRadius: "20px",
+                  color: "grey",
+                  fontWeight: "bold",
+                  padding: "5px",
+                  fontSize: "30px",
+                  margin: "2px",
                 }}
               />
-                
             </div>
           </div>
         )}
-
-        {/* <Typography component="h6" mt={2} mb={2}>
-          Latest Conversations
-        </Typography>
-        <List
-          sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
-        >
-          <ListItem alignItems="flex-start">
-            <ListItemAvatar>
-              <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
-            </ListItemAvatar>
-            <ListItemText
-              primary="Brunch this weekend?"
-              secondary={
-                <React.Fragment>
-                  <Typography
-                    sx={{ display: "inline" }}
-                    component="span"
-                    variant="body2"
-                    color="text.primary"
-                  >
-                    Ali Connors
-                  </Typography>
-                  {" — I'll be in your neighborhood doing errands this…"}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-          <Divider variant="inset" component="li" />
-          <ListItem alignItems="flex-start">
-            <ListItemAvatar>
-              <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" />
-            </ListItemAvatar>
-            <ListItemText
-              primary="Summer BBQ"
-              secondary={
-                <React.Fragment>
-                  <Typography
-                    sx={{ display: "inline" }}
-                    component="span"
-                    variant="body2"
-                    color="text.primary"
-                  >
-                    to Scott, Alex, Jennifer
-                  </Typography>
-                  {" — Wish I could come, but I'm out of town this…"}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-          <Divider variant="inset" component="li" />
-          <ListItem alignItems="flex-start">
-            <ListItemAvatar>
-              <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" />
-            </ListItemAvatar>
-            <ListItemText
-              primary="Oui Oui"
-              secondary={
-                <React.Fragment>
-                  <Typography
-                    sx={{ display: "inline" }}
-                    component="span"
-                    variant="body2"
-                    color="text.primary"
-                  >
-                    Sandra Adams
-                  </Typography>
-                  {" — Do you have Paris recommendations? Have you ever…"}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-          <Divider variant="inset" component="li" />
-          <ListItem alignItems="flex-start">
-            <ListItemAvatar>
-              <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
-            </ListItemAvatar>
-            <ListItemText
-              primary="Brunch this weekend?"
-              secondary={
-                <React.Fragment>
-                  <Typography
-                    sx={{ display: "inline" }}
-                    component="span"
-                    variant="body2"
-                    color="text.primary"
-                  >
-                    Ali Connors
-                  </Typography>
-                  {" — I'll be in your neighborhood doing errands this…"}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-          <Divider variant="inset" component="li" />
-          <ListItem alignItems="flex-start">
-            <ListItemAvatar>
-              <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
-            </ListItemAvatar>
-            <ListItemText
-              primary="Brunch this weekend?"
-              secondary={
-                <React.Fragment>
-                  <Typography
-                    sx={{ display: "inline" }}
-                    component="span"
-                    variant="body2"
-                    color="text.primary"
-                  >
-                    Ali Connors
-                  </Typography>
-                  {" — I'll be in your neighborhood doing errands this…"}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-          <Divider variant="inset" component="li" />
-          <ListItem alignItems="flex-start">
-            <ListItemAvatar>
-              <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
-            </ListItemAvatar>
-            <ListItemText
-              primary="Brunch this weekend?"
-              secondary={
-                <React.Fragment>
-                  <Typography
-                    sx={{ display: "inline" }}
-                    component="span"
-                    variant="body2"
-                    color="text.primary"
-                  >
-                    Ali Connors
-                  </Typography>
-                  {" — I'll be in your neighborhood doing errands this…"}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-          <Divider variant="inset" component="li" />
-        </List> */}
       </Box>
     </Box>
   );

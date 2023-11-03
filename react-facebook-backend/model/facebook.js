@@ -93,6 +93,10 @@ const userSchema = new mongoose.Schema({
     // },
   ],
   friendRequests : [] ,
+  addFriend :{
+    type : Boolean ,
+    default : false
+  }, 
   posts: [
     postSchema
   ],

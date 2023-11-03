@@ -102,7 +102,7 @@ router.post('/add-friend', async (req, res) => {
       return res.status(404).json({ message: 'User or friend not found' });
     }
 
-     // Check if the friend is already in the user's `friends` array
+     // Check if the friend is already in the user's friends array
     //  const isFriendAlreadyAdded = friend.friends.some((friendDetails) => friendDetails.username === username);
 
     //  if (isFriendAlreadyAdded) {
@@ -193,6 +193,28 @@ try{
   return res.status(500).json({message: 'Error while accepting friend request'})
 }
   
+})
+
+router.patch('/add-friend-button/:userId', async (req,res)=>{
+  const userId = req.params.userId ;
+  console.log(userId)
+  try{
+    const user = await FacebookModel.findById(userId) ; 
+
+    if(!user){
+      return res.status(404).json({message : 'User not found'})
+    } 
+
+    user.addFriend = !user.addFriend ;
+    await user.save() ;
+    console.log(user.addFriend) ;
+    const addFriend = user.addFriend ;
+    return res.status(200).json({addFriend})
+
+  } catch(error) {
+    console.log(error) ;
+    return res.status(500).json({message : 'Error while updating the addFriend button text'})
+  }
 })
 
 module.exports = router;
