@@ -58,9 +58,10 @@ router.delete('/delete-post/', FacebookController.deletePost);
 // Define the route for getting all user details
 router.get('/all-users', async (req, res) => {
   try {
-    const users = await FacebookModel.find({}, 'firstName lastName email profilePicture');
+    const users = await FacebookModel.find({}, 'firstName lastName email profilePicture addFriend');
     // Send the retrieved user data as a response
-    res.status(200).json(users);
+    res.status(200).json(users); 
+    console.log(users.addFriend)
   } catch (error) {
     console.error(error);
     // Handle the error

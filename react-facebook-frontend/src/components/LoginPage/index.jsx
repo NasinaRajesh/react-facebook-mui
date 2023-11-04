@@ -86,7 +86,7 @@ const validationSchema = Yup.object().shape({
 function LoginPage() {
   const [invalidCredentials, setInvalidCredentials] = useState("");
   const [isLoading, setIsLoading] = useState(false); // State to track loading status
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const [showPassword, setShowPassword] = useState(true); // State to toggle password visibility
 
   const navigatesTo = useNavigate();
   const dispatch = useDispatch()
@@ -125,8 +125,6 @@ function LoginPage() {
   };
 
   return (
-    
-    
     <Container
       sx={{
         height: "100vh",
@@ -168,7 +166,6 @@ function LoginPage() {
                 component="div"
                 className="text-danger"
               />
-
               <Field
                 as={TextField}
                 margin="normal"
@@ -176,7 +173,7 @@ function LoginPage() {
                 fullWidth
                 name="password"
                 label="Password"
-                type={showPassword? "text" : "password"}
+                type={showPassword?  "password" : "text"}
                 id="password"
                 autoComplete="current-password"
 
@@ -188,7 +185,7 @@ function LoginPage() {
                         onClick={() => setShowPassword(!showPassword)}
                         edge="end"
                       >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                        {showPassword ?  <VisibilityOff/> : <Visibility /> }
                       </IconButton>
                     </InputAdornment>
                   ),
