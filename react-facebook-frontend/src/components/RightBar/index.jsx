@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Box,
+  Button,
   ImageList,
   ImageListItem,
   Typography,
@@ -58,7 +59,7 @@ function RightBar({ userState }) {
       FetchUserPostDetails();
       FetchAllUsers();
     }
-  }, [userId, selector]);
+  }, [userId, selector, requestSent]);
 
   const handleImageClick = (postId) => {
     setSelectedImage(postId);
@@ -86,7 +87,7 @@ function RightBar({ userState }) {
   };
 
   const toggleAddFriendButtonText = (userId) => {
-    console.log("toggleAddFriendButtonText called", userId)
+    console.log("toggleAddFriendButtonText called", userId);
     //const userId = selector.user.id;
     axios
       .patch(`${urls.toggleAddFriendButtonText}/${userId}`)
@@ -112,7 +113,8 @@ function RightBar({ userState }) {
             {allUsers
               .slice()
               .reverse()
-              .map((user, index) => (
+              .map((user, index) => ( 
+                console.log(user.addFriend) ,
                 <Card
                   key={user._id}
                   sx={{ width: 300, height: 130, marginBottom: 1 }}
@@ -145,10 +147,19 @@ function RightBar({ userState }) {
                         </Typography>
                       </Box>
                       <Box mt={1}>
-                        <AddFriendButton
+                        {/* <AddFriendButton
                           onClick={() => handleAddFriendClick(user)}
                           requestSent={requestSent}
-                        />
+                        /> */}
+                        {user.addFriend ? (
+                          <Button sx={{textTransform:'none'}} onClick={() => handleAddFriendClick(user)}>
+                            Requested
+                          </Button>
+                        ) : (
+                          <Button sx={{textTransform:'none'}} onClick={() => handleAddFriendClick(user)}>
+                            Add Friend
+                          </Button>
+                        )}  
                       </Box>
                     </Box>
                   </CardContent>
