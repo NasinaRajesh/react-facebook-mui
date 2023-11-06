@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '@mui/material/Button';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
-const AddFriendButton = ({onClick, requestSent}) => {
+const AddFriendButton = ({onClick, requestSent, buttonText}) => {
   // console.log(requestSent)
   return (
     <Button
@@ -20,7 +20,7 @@ const AddFriendButton = ({onClick, requestSent}) => {
       }}
     >
       {/* {requestSent ? 'Request sent':'Add Friend'} */}
-      Add Friend
+      {buttonText}
     </Button>
   );
 };

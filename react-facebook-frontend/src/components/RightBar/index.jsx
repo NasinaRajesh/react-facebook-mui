@@ -18,7 +18,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useSelector } from "react-redux";
 function RightBar({ userState }) {
   const selector = useSelector((state) => state.LoggedUser.user);
-
+  const profilePicture = useSelector((state) => state.LoggedUser.user.profilePicture);
   const userId = selector.user.id;
   const [userPosts, setUserPosts] = useState([]);
   const [loading, setLoading] = useState(true); // State to track loading status
@@ -71,17 +71,19 @@ function RightBar({ userState }) {
   };
 
   const handleAddFriendClick = (friend) => {
+    toggleAddFriendButtonText(friend._id);
     // setAllUsers((prevUsers) => prevUsers.filter((u) => u._id !== user._id));
     console.log(selector.user.profilePicture);
+    
     axios
       .post(`${urls.addFriend}?userId=${userId}&friendId=${friend._id}`, {
         username: selector.user.username,
-        profilePicture: selector.user.profilePicture,
+        profilePicture: profilePicture,
       })
       .then((res) => {
         console.log(res);
 
-        toggleAddFriendButtonText(friend._id);
+        
       })
       .catch((error) => console.log(error.response.data.message));
   };
@@ -152,13 +154,17 @@ function RightBar({ userState }) {
                           requestSent={requestSent}
                         /> */}
                         {user.addFriend ? (
-                          <Button sx={{textTransform:'none'}} onClick={() => handleAddFriendClick(user)}>
-                            Requested
-                          </Button>
+                          <AddFriendButton
+                          onClick={() => handleAddFriendClick(user)}
+                          requestSent={requestSent}
+                          buttonText = "Requested"
+                        />
                         ) : (
-                          <Button sx={{textTransform:'none'}} onClick={() => handleAddFriendClick(user)}>
-                            Add Friend
-                          </Button>
+                          <AddFriendButton
+                          onClick={() => handleAddFriendClick(user)}
+                          requestSent={requestSent}
+                          buttonText = "Add Friend"
+                        />
                         )}  
                       </Box>
                     </Box>

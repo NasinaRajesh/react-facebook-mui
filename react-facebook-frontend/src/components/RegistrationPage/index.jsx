@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 //import { useNavigate } from "react-router-dom";
-
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import { urls } from "../../urls";
 import {
   Box,
@@ -19,7 +19,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import {useNavigate } from "react-router-dom";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
-
+import * as Yup from 'yup' ;
 
 
 // const StyledLoginButton = styled(Button)(({ theme }) => ({
@@ -76,6 +76,17 @@ const CustomBox = styled(Box)(({ theme }) => ({
     flexDirection: "row",
   },
 }));
+
+const validationSchema = Yup.object().shape({
+  firstName: Yup.string().required("First name is required"),
+  lastName: Yup.string().required("Last name is required"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+  password: Yup.string().required("Password is required"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("password"), null], "Passwords must match")
+    .required("Confirm password is required"),
+  birthdate: Yup.string().required("Date of birth is required"),
+});
 
 function RegistrationPage() {
   const navigatesTo = useNavigate();

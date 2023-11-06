@@ -205,8 +205,10 @@ function Navbar({ onPostAdded }) {
             <Notifications />
           </Badge>
           <Badge
+            title="Requests"
             badgeContent={friendRequests?friendRequests.length:''}
             color="error"
+            sx={{padding:'3px', margin:'1px'}}
             onClick={() => {
               setIsDrawerOpen(true) 
               handleFriendRequests(selector.user.id)
@@ -257,7 +259,7 @@ function Navbar({ onPostAdded }) {
                           </Typography>
                         </Box>
                         <Box mt={1}>
-                          <Button onClick={()=>handleAcceptRequest(request)} startIcon={<Check/>} sx={{textTransform:'none'}}>Accept</Button>
+                          <Button onClick={()=>handleAcceptRequest(request)} startIcon={<Check/>} color="success" sx={{textTransform:'none'}}>Accept</Button>
                           <Button onClick={()=>handleRejectRequest(request)} startIcon={<Clear/>} color="error" sx={{textTransform:'none'}}>Reject</Button>
                         </Box>
                       </Box>
@@ -317,9 +319,9 @@ function Navbar({ onPostAdded }) {
           //onClick={(e) => setAnchorEl(e.currentTarget)}
         />
         <MenuItem>
-          <label htmlFor="image-upload">Profile</label>
+          <label htmlFor="image-upload">Update profile</label>
         </MenuItem>
-        <MenuItem onClick={(e) => closeMenu()}>My account</MenuItem>
+        {/* <MenuItem onClick={(e) => closeMenu()}>My account</MenuItem> */}
         <MenuItem
           onClick={() => {
             // setUserState({});
