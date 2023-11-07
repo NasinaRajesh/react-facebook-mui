@@ -94,7 +94,7 @@ function Navbar({ onPostAdded }) {
     display: "block",
 
     [theme.breakpoints.up("sm")]: {
-      // breakpoints are greater than small screen then custom styled UserBox component will hide
+      // breakpoints are >= small screen then custom styled UserBox component will hide
       display: "none",
     },
   }));
@@ -164,6 +164,7 @@ function Navbar({ onPostAdded }) {
     const userId = selector.user.id ;
     handleFriendRequests(userId)
   },[selector.user.id])
+  
   const handleFriendRequests = (userId) => {
     console.log("handleFriendRequest called")
     // setIsDrawerOpen(true)
@@ -208,7 +209,7 @@ function Navbar({ onPostAdded }) {
             title="Requests"
             badgeContent={friendRequests?friendRequests.length:''}
             color="error"
-            sx={{padding:'3px', margin:'1px'}}
+            sx={{padding:'2px', margin:'1px'}}
             onClick={() => {
               setIsDrawerOpen(true) 
               handleFriendRequests(selector.user.id)
@@ -274,7 +275,7 @@ function Navbar({ onPostAdded }) {
             <Avatar
               title="Profile"
               src={profile ? profile.data.profilePicture : profilePicture}
-              sx={{ width: 24, height: 24 }}
+              sx={{ width: 24, height: 24, }}
               onClick={(e) => {
                 //setAnchorEl(e.currentTarget);
                 setOpen(true);
@@ -286,7 +287,7 @@ function Navbar({ onPostAdded }) {
         <UserBox>
           <Box sx={{ display: "flex" }}>
             <Avatar
-              sx={{ width: 24, height: 24 }}
+              sx={{ width: 24, height: 24, }}
               src={profile ? profile.data.profilePicture : profilePicture}
               onClick={(e) => {
                 //setAnchorEl(e.currentTarget);

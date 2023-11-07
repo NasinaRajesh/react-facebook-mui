@@ -16,7 +16,7 @@ const AddFriendButton = ({onClick, requestSent, buttonText}) => {
         borderRadius: 5, 
         textTransform: 'none', // Prevents uppercase text
         fontWeight: 'bold',
-        padding: '5px 16px', // Adjust padding as needed
+        padding: '5px 16px', 
       }}
     >
       {/* {requestSent ? 'Request sent':'Add Friend'} */}

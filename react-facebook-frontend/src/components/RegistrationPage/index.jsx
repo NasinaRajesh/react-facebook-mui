@@ -70,7 +70,7 @@ const CustomBox = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  gap: "3rem",
+  gap: "1rem",
 
   [theme.breakpoints.up("sm")]: {
     flexDirection: "row",
@@ -155,6 +155,8 @@ function RegistrationPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        mt:5,
+        mb:5
       }}
     >
       <CustomBox>

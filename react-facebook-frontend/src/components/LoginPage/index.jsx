@@ -71,7 +71,7 @@ const CustomBox = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  gap: "3rem",
+  gap: "1rem",
 
   [theme.breakpoints.up("sm")]: {
     flexDirection: "row",
@@ -132,6 +132,8 @@ function LoginPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        mt:2,
+        mb:2
       }}
     >
       <CustomBox>

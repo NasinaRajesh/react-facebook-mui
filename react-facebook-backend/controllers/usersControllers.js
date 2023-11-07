@@ -81,8 +81,8 @@ const updateprofile = async  (req, res) => {
 
       jwt.sign(
         payload,
-        "secret", // Replace with a secret key for JWT signing
-        { expiresIn: 3600 }, // Token expiration time (1 hour)
+        "secret", 
+        { expiresIn: 3600 }, 
         (err, token) => {
           if (err) throw err;
           res.json({ token });
@@ -133,8 +133,8 @@ const accountLogin = async (req, res) => {
 
       jwt.sign(
         payload,
-        "secret", // Replace with a secret key for JWT signing
-        { expiresIn: 3600 }, // Token expiration time (1 hour)
+        "secret", 
+        { expiresIn: 3600 }, 
         (err, token) => {
           if (err) throw err;
           res.json({ token });
@@ -275,10 +275,6 @@ const getProfilePicture = async (req, res) => {
 
   const deletePost = async (req, res) => {
     const { userId, postId } = req.query;
-  
-    // Now you have access to userId and postId
-    // console.log('User ID:', userId);
-    // console.log('Post ID:', postId);
   
     try {
       // Find the user by _id
