@@ -1,7 +1,7 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, getDefaultMiddleware  } from "@reduxjs/toolkit";
 import UserStateSlice from "./components/UserStateSlice";
 import jwtDecode from "jwt-decode";
-
+import cookieMiddleware from "./cookieMiddleware";
 // Retrieve the token from local storage
 const token = localStorage.getItem("token");
 
@@ -36,6 +36,7 @@ if (token) {
     reducer: {
       LoggedUser: UserStateSlice 
     },
+   middleware : [...getDefaultMiddleware(), cookieMiddleware] 
   });
 } 
 

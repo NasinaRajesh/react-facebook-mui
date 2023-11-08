@@ -14,6 +14,13 @@ import RegistrationPage from "./components/RegistrationPage";
 import NoPage from "./components/NoPage";
 
 import { useSelector } from "react-redux";
+import LoggedUerProfile from "./components/Auth0/LoggedUerProfile";
+import AuthNavbar from "./components/Auth0/Dashboard";
+import AuthSideBar from "./components/Auth0/Sidebar";
+import AuthRightBar from "./components/Auth0/Rightbar";
+import AuthFeeds from "./components/Auth0/AuthFeeds";
+import AuthAddPost from "./components/Auth0/AuthAddPost";
+
 
 function App() {
   const selector = useSelector((state) => state.LoggedUser.user);
@@ -65,6 +72,21 @@ function App() {
     );
   }
 
+  function AuthDashboard(){
+    return(
+     <Box>
+      <AuthNavbar/>
+      <Stack direction="row" spacing={2} justifyContent="space-around">
+        <AuthSideBar/>
+        <AuthFeeds/>
+        <AuthRightBar/>
+      </Stack>
+
+      <AuthAddPost/>
+      
+      </Box>
+    )
+  }
 
 
   return (
@@ -78,6 +100,7 @@ function App() {
           ></Route>
           <Route path="*" element={<NoPage />}></Route>
           <Route path="/signup" element={<RegistrationPage />}></Route>
+          <Route path="/authdash" element={<AuthDashboard/>}></Route> 
         </Routes>
       </ThemeProvider>
     </BrowserRouter>
