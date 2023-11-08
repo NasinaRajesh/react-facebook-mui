@@ -23,6 +23,9 @@ import jwtDecode from "jwt-decode";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { getloggedUserDetails } from "../UserStateSlice";
+import { useAuth0 } from "@auth0/auth0-react";
+import LoggedUerProfile from "../Auth0/LoggedUerProfile";
+import { getAuth0LoggedUser } from "../UserStateSlice";
 const StyledLoginButton = styled(Button)(({ theme }) => ({
   outline: "none",
   border: "none",
@@ -84,14 +87,15 @@ const validationSchema = Yup.object().shape({
 });
 
 function LoginPage() {
+  const { loginWithRedirect, logout, user, isAuthenticated, isLoading } = useAuth0();
   const [invalidCredentials, setInvalidCredentials] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // State to track loading status
+  const [Loading, setLoading] = useState(false); // State to track loading status
   const [showPassword, setShowPassword] = useState(true); // State to toggle password visibility
-
+  
   const navigatesTo = useNavigate();
   const dispatch = useDispatch()
   const handleSubmit = (values) => {
-    setIsLoading(true); // Set loading to true when request starts
+    setLoading(true); // Set loading to true when request starts
 
     const loginDetails = {
       email: values.email,
@@ -120,9 +124,16 @@ function LoginPage() {
         setInvalidCredentials(error.response.data.msg);
       })
       .finally(() => {
-        setIsLoading(false); // Set loading to false when the request is complete
+        setLoading(false); // Set loading to false when the request is complete
       });
   };
+
+  if(isAuthenticated){
+    console.log(user)
+    dispatch(getAuth0LoggedUser(user))
+     //return <LoggedUerProfile auth0User={user}/>
+     navigatesTo("/authdash")
+   }
 
   return (
     <Container
@@ -202,10 +213,10 @@ function LoginPage() {
                 type="submit"
                 fullWidth
                 variant="contained"
-                disabled={isLoading}
+                disabled={Loading}
                 //   sx={{ mt: 3, mb: 2, bgcolor: "#1877f2", padding: "10px" , outline:'none', border:'none'}}
               >
-                {isLoading ? (
+                {Loading ? (
                   <CircularProgress size={24} color="inherit" />
                 ) : (
                   "Log In"
@@ -252,7 +263,13 @@ function LoginPage() {
                 >
                   Create an account
                 </StyledCreateAccountButton>
+                {/* Auth0login */}
+                <Box flexDirection="row">
+                  <Button onClick={() => loginWithRedirect()}>Login</Button>
+                  
 
+                </Box>
+                  
                 <Typography variant="body1" color="error">
                   {invalidCredentials}
                 </Typography>

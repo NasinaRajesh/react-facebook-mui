@@ -3,7 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 export const UserStateSlice = createSlice({
     name : 'Userdetails',
     initialState : {
-        user : []
+        user : [],
+        auth0user : []
     },
 
     reducers : {
@@ -16,9 +17,15 @@ export const UserStateSlice = createSlice({
         updateProfilePicture: (state, action) => {
             // Update the profilePicture field
             state.user.profilePicture = action.payload;
+        },
+        getAuth0LoggedUser : (state, action)=> {
+            state.auth0user = action.payload
+        },
+        logOutAuth0User : (state) => {
+            state.auth0user = [] ;
         }
     }
 })
 
-export const {getloggedUserDetails , logOutUser, updateProfilePicture} = UserStateSlice.actions ; 
+export const {getloggedUserDetails , logOutUser, updateProfilePicture, getAuth0LoggedUser, logOutAuth0User} = UserStateSlice.actions ; 
 export default UserStateSlice.reducer ;
