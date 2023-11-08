@@ -131,6 +131,7 @@ function LoginPage() {
   if(isAuthenticated){
     console.log(user)
     dispatch(getAuth0LoggedUser(user))
+    localStorage.setItem("auth0user", JSON.stringify(user))
      //return <LoggedUerProfile auth0User={user}/>
      navigatesTo("/authdash")
    }

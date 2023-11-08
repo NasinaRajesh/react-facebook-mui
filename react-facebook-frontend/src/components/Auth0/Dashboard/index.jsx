@@ -26,13 +26,14 @@ import { useDispatch } from "react-redux";
 // import { logOutUser } from "../UserStateSlice";
 // import { updateProfilePicture } from "../UserStateSlice";
 
-import { logOutAuth0User } from "../../UserStateSlice";
+import { logOutAuth0User , logOutUser} from "../../UserStateSlice";
 import { useAuth0 } from "@auth0/auth0-react";
 
-function AuthNavbar({ onPostAdded }) {
+function AuthNavbar({ onPostAdded }) { 
     const {logout} = useAuth0() ;
   const dispatch = useDispatch();
-  const selector = useSelector((state)=>state.LoggedUser.auth0user)
+  const selector = useSelector((state)=>state.LoggedUser.user) ;
+  console.log(selector)
   const navigatesTo = useNavigate();
 
   const [open, setOpen] = useState(false);
@@ -138,15 +139,27 @@ function AuthNavbar({ onPostAdded }) {
     setOpen(false);
   };
 
-  const onLogout = () => {
-    localStorage.clear();
-    dispatch(logOutAuth0User());
-    //setToken(null);
-    //setUserState({});
-    logout({ logoutParams: { returnTo: window.location.origin } });    
+//   const onLogout = () => {
+//     localStorage.clear();
+//     dispatch(logOutAuth0User());
+//     //setToken(null);
+//     //setUserState({});
+//     logout({ logoutParams: { returnTo: window.location.origin } });    
 
+//     navigatesTo("/");
+//   }; 
+
+const onLogout = async () => {
+    await new Promise((resolve) => {
+        localStorage.clear();
+        resolve();
+    });
+
+    // Now you can safely proceed with other actions
+    dispatch(logOutUser());
+    //logout({ logoutParams: { returnTo: window.location.origin } });
     navigatesTo("/");
-  };
+};
 
   const handleDeleteAccount = (userId) => {
     const confirm = window.confirm("Are you sure you want to delete");

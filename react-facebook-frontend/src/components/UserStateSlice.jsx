@@ -22,7 +22,7 @@ export const UserStateSlice = createSlice({
             state.auth0user = action.payload
         },
         logOutAuth0User : (state) => {
-            state.auth0user = [] ;
+            state.auth0user = {} ;
         }
     }
 })
