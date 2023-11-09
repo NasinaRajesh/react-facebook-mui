@@ -1,8 +1,8 @@
 import React from 'react'
-
+import {Box} from '@mui/material' ;
 function AuthRightBar() {
   return (
-    <div>AuthRightBar</div>
+    <Box flex={1} p={2} >auth right bar</Box>
   )
 }
 

@@ -1,8 +1,10 @@
 import React from 'react'
-
+import {Box} from '@mui/material' ;
 function AuthFeeds() {
   return (
-    <div>AuthFeeds</div>
+    <Box flex={2} p={2} >
+        auth feeds
+     </Box>   
   )
 }
 
