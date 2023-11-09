@@ -1,4 +1,11 @@
-import { Check, Clear, Facebook, Mail, Notifications, PersonAdd } from "@mui/icons-material";
+import {
+  Check,
+  Clear,
+  Facebook,
+  Mail,
+  Notifications,
+  PersonAdd,
+} from "@mui/icons-material";
 import {
   AppBar,
   Avatar,
@@ -13,27 +20,28 @@ import {
   Drawer,
   Card,
   CardContent,
-  Button
+  Button,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { urls } from "../../../urls";
+import { auth0urls, urls } from "../../../urls";
 import { isFocusable } from "@testing-library/user-event/dist/utils";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
+import Cookies from 'js-cookie' ;
 // reducers
 // import { logOutUser } from "../UserStateSlice";
 // import { updateProfilePicture } from "../UserStateSlice";
 
-import { logOutAuth0User , logOutUser} from "../../UserStateSlice";
+import { logOutAuth0User, logOutUser } from "../../UserStateSlice";
 import { useAuth0 } from "@auth0/auth0-react";
 
-function AuthNavbar({ onPostAdded }) { 
-    const {logout} = useAuth0() ;
+function AuthNavbar({ onPostAdded }) {
+  const { logout, isLoading } = useAuth0();
   const dispatch = useDispatch();
-  const selector = useSelector((state)=>state.LoggedUser.user) ;
-  console.log(selector)
+  const selector = useSelector((state) => state.LoggedUser.auth0user);
+  console.log(selector);
   const navigatesTo = useNavigate();
 
   const [open, setOpen] = useState(false);
@@ -47,6 +55,7 @@ function AuthNavbar({ onPostAdded }) {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [friendRequests, setFriendRequests] = useState([]);
+  const [loading, setLoading] = useState(false) ;
 
   //image upload
   const handleImageUpload = (file) => {
@@ -123,43 +132,30 @@ function AuthNavbar({ onPostAdded }) {
   }
 
   // To Fetch the Profile Picture for Navbar
-//   useEffect(() => {
-//     console.log("useEffect is called for getting profile");
-//     axios
-//       .get(`${urls.getprofile}/` + selector.email)
-//       .then((res) => {
-//         console.log(res.data.data.profilePicture, "navbar profile");
-//         //dispatch(updateProfilePicture(res.data.data.profilePicture));
-//         setProfile(res.data);
-//       })
-//       .catch((error) => console.log(error));
-//   }, [selector.email, profilePicture]);
+  //   useEffect(() => {
+  //     console.log("useEffect is called for getting profile");
+  //     axios
+  //       .get(`${urls.getprofile}/` + selector.email)
+  //       .then((res) => {
+  //         console.log(res.data.data.profilePicture, "navbar profile");
+  //         //dispatch(updateProfilePicture(res.data.data.profilePicture));
+  //         setProfile(res.data);
+  //       })
+  //       .catch((error) => console.log(error));
+  //   }, [selector.email, profilePicture]);
 
   const closeMenu = () => {
     setOpen(false);
   };
 
-//   const onLogout = () => {
-//     localStorage.clear();
-//     dispatch(logOutAuth0User());
-//     //setToken(null);
-//     //setUserState({});
-//     logout({ logoutParams: { returnTo: window.location.origin } });    
-
-//     navigatesTo("/");
-//   }; 
-
-const onLogout = async () => {
-    await new Promise((resolve) => {
-        localStorage.clear();
-        resolve();
-    });
-
-    // Now you can safely proceed with other actions
-    dispatch(logOutUser());
-    //logout({ logoutParams: { returnTo: window.location.origin } });
+    const onLogout = () => {
+    
+    localStorage.removeItem("auth0user");
+    Cookies.remove("auth0user")
+    dispatch(logOutAuth0User());
+    logout({ logoutParams: { returnTo: window.location.origin } });
     navigatesTo("/");
-};
+  };
 
   const handleDeleteAccount = (userId) => {
     const confirm = window.confirm("Are you sure you want to delete");
@@ -176,36 +172,62 @@ const onLogout = async () => {
     }
   };
   console.log(friendRequests);
-//   useEffect(()=>{
-//     const userId = selector.email ;
-//     handleFriendRequests(userId)
-//   },[selector.email])
-  const handleFriendRequests = (userId) => {
-    console.log("handleFriendRequest called")
-    // setIsDrawerOpen(true)
+    useEffect(()=>{
+      
+      handleFriendRequests()
+    },[selector.email])
+  const handleFriendRequests = () => {
+    console.log("handleFriendRequest called");
+    setLoading(true)
     axios
-      .get(`${urls.getFriends}/${userId}`)
-      .then((res) => setFriendRequests(res.data.friendRequests))
+      .post(`${auth0urls.friendRequests}`, {
+        email: selector.email,
+      })
+      .then((res) => {
+        setLoading(false)
+        setFriendRequests(res.data.friendRequests)
+    })
       .catch((error) => console.log(error));
   };
   const handleRejectRequest = (request) => {
-    const userId = selector.email 
-    //console.log(request, selector.email)
-    axios.delete(`${urls.rejectFriendRequest}?userId=${userId}&requestId=${request.userId}`).then(res=>handleFriendRequests(userId)).catch(error=>console.log(error))
-  } 
+    console.log(request.email);
+    const emailId = selector.email;
+    // //console.log(request, selector.email)
+    axios
+      .delete(
+        `${auth0urls.rejectFriendRequest}?emailId=${emailId}&requestId=${request.email}`
+      )
+      .then((res) => {
+        console.log(res);
+        handleFriendRequests();
+      })
+      .catch((error) => console.log(error));
+  };
   const handleAcceptRequest = (requestUser) => {
-    //console.log(requestUser)
-    const userId = selector.email ;
-    const requestId = requestUser.userId ;
-    axios.post(`${urls.acceptFriendRequest}?userId=${userId}&requestId=${requestId}`,{
-      requestUser : requestUser
-    })
-    .then((res)=> {
-      console.log(res)
-      handleFriendRequests(userId)
-    })
-    .catch((error) => console.log(error))
-  }
+    console.log(requestUser);
+    const emailId = selector.email;
+    const requestId = requestUser.email;
+    axios
+      .post(
+        `${auth0urls.acceptFriendRequest}?emailId=${emailId}&requestId=${requestId}`,
+        {
+          requestUser: requestUser,
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        handleFriendRequests();
+      })
+      .catch((error) => console.log(error));
+  };
+
+  if(isLoading){
+    return(
+      <Typography sx={{textAlign:'center', py:5}}>
+        loading...
+      </Typography>
+    )
+   }
   return (
     <AppBar position="sticky">
       <StyledToolbar>
@@ -217,16 +239,100 @@ const onLogout = async () => {
           <InputBase placeholder="Search..." />
         </Search>
         <Icon>
-          <Badge  color="error">
+          <Badge color="error">
             <Notifications />
           </Badge>
           <Badge
-            
-          
+             title="Requests"
+             badgeContent={friendRequests?friendRequests.length:''}
+             color="error"
+             sx={{padding:'2px', margin:'1px'}}
+            onClick={() => {
+              setIsDrawerOpen(true);
+              handleFriendRequests();
+            }}
           >
             <PersonAdd />
           </Badge>
-         
+
+          <Drawer
+            anchor="right"
+            open={isDrawerOpen}
+            onClose={() => setIsDrawerOpen(false)}
+          >
+            {/* Render the friendRequests data inside the Drawer */}
+            <Box sx={{ p: 2 }}>
+              <Typography variant="body1">Friend Requests</Typography>
+
+              {friendRequests.length > 0 ? (
+                friendRequests.map((request, index) => (
+                  <Card
+                    key={request.userId}
+                    sx={{
+                      width: 300,
+                      height: 130,
+                      marginBottom: 1,
+                      marginTop: 1,
+                    }}
+                  >
+                    <CardContent>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Avatar
+                            src={request.profilePicture}
+                            alt="User Avatar"
+                            sx={{ width: 60, height: 60, marginRight: 1 }}
+                          />
+                          <Typography variant="h6" component="div">
+                            {request.username}
+                          </Typography>
+                        </Box>
+                        <Box mt={1}>
+                          <Button
+                            onClick={() => handleAcceptRequest(request)}
+                            startIcon={<Check />}
+                            color="success"
+                            sx={{ textTransform: "none" }}
+                          >
+                            Accept
+                          </Button>
+                          <Button
+                            onClick={() => handleRejectRequest(request)}
+                            startIcon={<Clear />}
+                            color="error"
+                            sx={{ textTransform: "none" }}
+                          >
+                            Reject
+                          </Button>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <Typography variant="body2" sx={{ textAlign: "center", p: 5 }}>
+                  empty...
+                </Typography>
+              )}
+              {/* {loading && <Typography variant="body2" sx={{ textAlign: "center", p: 5 }}>
+                  loading...
+                </Typography>} */}
+            </Box>
+          </Drawer>
+
           <Box>
             <Avatar
               title="Profile"

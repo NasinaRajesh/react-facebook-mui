@@ -96,7 +96,7 @@ function RightBar({ userState }) {
         // setTimeout(() => {
         //   setSuccessAlert(false);
         // }, 1500);
-        //setSnackbarOpen(true)
+        setSnackbarOpen(true)
       })
       .catch((error) => {
         console.log(error.response.data.message);

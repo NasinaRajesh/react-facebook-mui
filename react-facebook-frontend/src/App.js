@@ -96,7 +96,7 @@ function App() {
           <Route path="/" element={<LoginPage />}></Route>
           <Route
             path="/dash"
-            element={selector.length === 0 ?  <Navigate to="/" /> : <MainPage /> }
+            element={selector ?   <MainPage /> : <Navigate to="/" /> }
           ></Route>
           <Route path="*" element={<NoPage />}></Route>
           <Route path="/signup" element={<RegistrationPage />}></Route>
