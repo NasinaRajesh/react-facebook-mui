@@ -16,15 +16,15 @@ if(auth0user){
 
 let store;
 
-if (token) {
+if (token ) {
   try {
     // Decode the token and get user details
-    const decodedToken = jwtDecode(token);
+    
 
     // Assuming decodedToken contains user details like username, email, etc.
     const preloadedState = {
       LoggedUser: {
-        user: decodedToken,
+        user:  jwtDecode(token),
       },
     };
 
@@ -39,27 +39,7 @@ if (token) {
     console.error('Error decoding the token:', error);
   }
 }
-else if(auth0user){
-  try{
-    const auth0userPreloadedState = {
-      LoggedUser: {
-        auth0user : auth0user
-      },
-    };
-
-    // When configuring your store, initialize it with the preloaded state
-    store = configureStore({
-      reducer: {
-        LoggedUser: UserStateSlice,
-      },
-      auth0userPreloadedState,
-    });
-  } catch(error){
-    console.error('Error while updating the auth0user to redux-store', error)
-  }
-}
-
- else {
+else {
   // If no token is found, configure the store with the default state
   store = configureStore({
     reducer: {

@@ -58,7 +58,7 @@ router.delete('/delete-post/', FacebookController.deletePost);
 // Define the route for getting all user details
 router.get('/all-users', async (req, res) => {
   try {
-    const users = await FacebookModel.find({}, 'firstName lastName email profilePicture addFriend');
+    const users = await FacebookModel.find({}, 'firstName lastName email profilePicture addFriend friendRequests');
     // Send the retrieved user data as a response
     res.status(200).json(users); 
     console.log(users.addFriend)
@@ -98,13 +98,13 @@ router.post('/add-friend', async (req, res) => {
     const {username, profilePicture} = req.body ;
     const user = await FacebookModel.findById(userId); // Find the user who wants to add a friend
     const friend = await FacebookModel.findById(friendId); // Find the friend
-    
+    const email = user.email ;
     if (!user || !friend) {
       return res.status(404).json({ message: 'User or friend not found' });
     }
 
      // Check if the friendRequest is already in the user's friendRequest array
-     const isFriendRequestAlreadyAdded = friend.friendRequests.some((friendDetails) => friendDetails.username === username);
+     const isFriendRequestAlreadyAdded = friend.friendRequests.some((friendDetails) => friendDetails.username.toLowerCase().trim() === username.toLowerCase().trim());
 
      if (isFriendRequestAlreadyAdded) {
        return res.status(400).json({ message: 'Friend request already sent' });
@@ -114,7 +114,8 @@ router.post('/add-friend', async (req, res) => {
     const friendDetails = {
       userId,
       username,
-      profilePicture
+      profilePicture,
+      email
     }
     //console.log(friendDetails)
     friend.friendRequests.push(friendDetails);
@@ -217,5 +218,7 @@ router.patch('/add-friend-button/:userId', async (req,res)=>{
     return res.status(500).json({message : 'Error while updating the addFriend button text'})
   }
 })
+
+
 
 module.exports = router;
