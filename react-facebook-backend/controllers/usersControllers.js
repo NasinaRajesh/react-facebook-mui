@@ -13,7 +13,7 @@ const updateprofile = async  (req, res) => {
     const { imageData } = req.body;
     try {
       // Find the user by their ID
-      const user = await FacebookModel.findById(userId);
+      const user = await FacebookModel.findById(userId); 
   
       if (!user) {
         return res.status(404).json({ error: 'User not found.' });

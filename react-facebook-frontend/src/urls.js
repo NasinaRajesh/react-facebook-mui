@@ -23,4 +23,7 @@ export const auth0urls = {
     friendRequests : `${auth0server}/friend-request` ,
     rejectFriendRequest : `${auth0server}/reject-request`,
     acceptFriendRequest : `${auth0server}/accept-request` ,
+    createpost : `${auth0server}/create-post`,
+    getposts : `${auth0server}/get-posts`,
+    deletepost : `${auth0server}/delete-post` ,
 } 
