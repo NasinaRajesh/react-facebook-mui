@@ -1,54 +1,111 @@
-import {React, useState} from 'react' ;
-import {Box, Tooltip, Fab, styled, Modal, CircularProgress, Button, ButtonGroup, Stack, TextField,Typography,Avatar} from '@mui/material' ;
-import AddIcon from "@mui/icons-material/Add";
+import { React, useState } from "react";
 import {
-    EmojiEmotions,
-    Image,
-    PersonAdd,
-    VideoCameraBack,
-  } from "@mui/icons-material";
-
+  Box,
+  Tooltip,
+  Fab,
+  styled,
+  Modal,
+  CircularProgress,
+  Button,
+  ButtonGroup,
+  Stack,
+  TextField,
+  Typography,
+  Avatar,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { useAuth0 } from "@auth0/auth0-react";
+import {
+  EmojiEmotions,
+  Image,
+  PersonAdd,
+  VideoCameraBack,
+} from "@mui/icons-material";
+import { auth0urls } from "../../../urls";
+import axios from "axios";
+import CustomSnackbar from "../../CustomSnackbar";
 const StyledModal = styled(Modal)({
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  });
-  const UserBox = styled(Box)({
-    display: "flex",
-    gap: "5px",
-    alignItems: "center",
-    marginBottom: "20px",
-  });
-function AuthAddPost(){
-    const [open, setOpen] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
-    const [postimageUrl, setPostImageUrl] = useState(null); // State to store the URL of the selected image
-    const [postcontent, setPostContent] = useState('')
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+});
+const UserBox = styled(Box)({
+  display: "flex",
+  gap: "5px",
+  alignItems: "center",
+  marginBottom: "20px",
+});
+function AuthAddPost({ onPostAdded }) {
+  const [open, setOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [postimageUrl, setPostImageUrl] = useState(""); // State to store the URL of the selected image
+  const [postcontent, setPostContent] = useState("");
+  const { user, isAuthenticated, isLoading } = useAuth0();
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarSeverity, setSnackbarSeverity] = useState("");
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
-    const handleImageUpload = (file) => {
-        setSelectedImage(file);
-        // Display the selected image in the TextField
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          setPostImageUrl(e.target.result);
-        };
-        reader.readAsDataURL(file);
-      };
-
-    const handleSubmit = (e)=> {
-        e.preventDefault() ;
-        const postDetails = {
-            postcontent : postcontent ,
-            postimageUrl : postimageUrl
-        }
-        console.log(postDetails)
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
     }
+    setSnackbarOpen(false);
+  };
 
-    return(
-        <Box>
-        <Tooltip
+
+  const handleImageUpload = (file) => {
+    setSelectedImage(file);
+    // Display the selected image in the TextField
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPostImageUrl(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const postDetails = {
+      postcontent: postcontent,
+      postimageUrl: postimageUrl,
+    };
+    console.log(postDetails);
+
+    axios
+      .post(`${auth0urls.createpost}?emailId=${user.email}`, postDetails, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        console.log("Post successfully created!");
+        console.log("Response data:", res);
+        setOpen(false);
+        // setOnEditClick(false);
+        onPostAdded();
+        setSnackbarSeverity("success") ;
+        setSnackbarMessage(res.data.message) ;
+        setSnackbarOpen(true)
+      })
+      .catch((error) => {
+        console.log(error, "error msg");
+        setErrorMessage(error.response.data.error);
+        setSnackbarSeverity("error") ;
+        setSnackbarMessage(error.response.data.error) ;
+        setSnackbarOpen(true)
+      });
+    // .finally(() => setLoading(false));
+  };
+
+  return (
+    <Box>
+      <Tooltip
         onClick={(e) => {
-          setOpen(true)
+          setOpen(true);
+          setPostImageUrl(null);
+          setPostContent(null);
+          setErrorMessage(null);
         }}
         title="create a new post"
         sx={{
@@ -63,19 +120,18 @@ function AuthAddPost(){
       </Tooltip>
 
       <StyledModal
-        open={open }
+        open={open}
         onClose={(e) => {
           setOpen(false);
-          
         }}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
         <Box
-         bgcolor={"background.default"}
-         color={"text.primary"}
+          bgcolor={"background.default"}
+          color={"text.primary"}
           width={postimageUrl ? "450px" : "400px"}
-          height={postimageUrl ? "580px" : "320px"}
+          height={postimageUrl ? "580px" : "322px"}
           p={3}
           mt={2}
           borderRadius={5}
@@ -92,13 +148,15 @@ function AuthAddPost(){
             create post
           </Typography>
 
-          <UserBox>  
+          <UserBox>
             <Avatar
-              src=""  
-              alt=""
+              src={isAuthenticated && user.picture}
+              alt={isAuthenticated && user.name}
               sx={{ width: 30, height: 30 }}
             />
-            <Typography variant="span">Rajesh</Typography>
+            <Typography variant="span">
+              {isAuthenticated && user.name}
+            </Typography>
           </UserBox>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -112,7 +170,7 @@ function AuthAddPost(){
               variant="standard"
               onChange={(e) => {
                 setPostContent(e.target.value);
-            
+                setErrorMessage(null);
               }}
             />
             {postimageUrl && (
@@ -145,10 +203,8 @@ function AuthAddPost(){
             mb={3}
             sx={{ cursor: "pointer" }}
           >
-            <EmojiEmotions
-              color="primary"
-              />            
-            <label htmlFor="image-upload" >
+            <EmojiEmotions color="primary" />
+            <label htmlFor="image-upload" onClick={() => setErrorMessage(null)}>
               <Image color="secondary" sx={{ cursor: "pointer" }} />
             </label>
 
@@ -156,7 +212,6 @@ function AuthAddPost(){
             <PersonAdd color="error" />
           </Stack>
           {/* Emoji picker */}
-         
 
           <ButtonGroup
             fullWidth
@@ -165,26 +220,27 @@ function AuthAddPost(){
             aria-label="Disabled elevation buttons"
             style={{ display: "flex", justifyContent: "center" }}
           >
-          
-              <Button type="submit">Post</Button>
-        
+            <Button type="submit">Post</Button>
           </ButtonGroup>
-          {/* <Typography
+          <Typography
             variant="body2"
             color="error"
             sx={{ textAlign: "center" }}
           >
             {errorMessage}
-          </Typography> */}
+          </Typography>
         </Box>
       </StyledModal>
 
-
-</Box>
-      
-    )
-    
+      {/* custom snackbar */}
+      <CustomSnackbar
+        open={snackbarOpen}
+        onClose={handleSnackbarClose}
+        severity={snackbarSeverity}
+        message={snackbarMessage}
+      />
+    </Box>
+  );
 }
 
-
-export default AuthAddPost ;
+export default AuthAddPost;

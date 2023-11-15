@@ -73,16 +73,17 @@ function App() {
   }
 
   function AuthDashboard(){
+    const [postAdded, setPostAdded] = useState(false); // Add a flag to trigger Feed component update
     return(
      <Box>
       <AuthNavbar/>
       <Stack direction="row" spacing={2} justifyContent="space-around">
         <AuthSideBar/>
-        <AuthFeeds/>
+        <AuthFeeds postAdded={postAdded}/>
         <AuthRightBar/>
       </Stack>
 
-      <AuthAddPost/>
+      <AuthAddPost onPostAdded={()=>setPostAdded(!postAdded)}/>
       
       </Box>
     )

@@ -36,9 +36,16 @@ import Cookies from 'js-cookie' ;
 
 import { logOutAuth0User, logOutUser } from "../../UserStateSlice";
 import { useAuth0 } from "@auth0/auth0-react";
+import CustomSnackbar from "../../CustomSnackbar";
 
 function AuthNavbar({ onPostAdded }) {
-  const { logout, isLoading } = useAuth0();
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarSeverity, setSnackbarSeverity] = useState("");
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  const { logout, isLoading, user } = useAuth0();
+  console.log(user)
   const dispatch = useDispatch();
   const selector = useSelector((state) => state.LoggedUser.auth0user);
   console.log(selector);
@@ -59,14 +66,7 @@ function AuthNavbar({ onPostAdded }) {
 
   //image upload
   const handleImageUpload = (file) => {
-    setIsNewImageSelected(true); // Set to true when a new image is selected
-    // Display the selected image in the TextField
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setProfilePicture(e.target.result);
-    };
-    reader.readAsDataURL(file);
+    alert("on profile pic click is triggered")
   };
 
   const StyledToolbar = styled(Toolbar)({
@@ -110,46 +110,13 @@ function AuthNavbar({ onPostAdded }) {
     },
   }));
 
-  if (isNewImageSelected) {
-    // console.log(`Updating profile picture for user ${selector.email}`);
 
-    const imageData = profilePicture;
-    //console.log(imageData, "image Data");
-    axios
-      .patch(`${urls.updateprofile}/${selector.email}`, {
-        imageData: imageData,
-      })
-      .then((res) => {
-        console.log(res);
-
-        setIsNewImageSelected(false); // Reset to false after the update
-        onPostAdded();
-      })
-      .catch((error) => {
-        console.log(error);
-        setIsNewImageSelected(false); // Reset to false after error
-      });
-  }
-
-  // To Fetch the Profile Picture for Navbar
-  //   useEffect(() => {
-  //     console.log("useEffect is called for getting profile");
-  //     axios
-  //       .get(`${urls.getprofile}/` + selector.email)
-  //       .then((res) => {
-  //         console.log(res.data.data.profilePicture, "navbar profile");
-  //         //dispatch(updateProfilePicture(res.data.data.profilePicture));
-  //         setProfile(res.data);
-  //       })
-  //       .catch((error) => console.log(error));
-  //   }, [selector.email, profilePicture]);
-
-  const closeMenu = () => {
+const closeMenu = () => {
     setOpen(false);
   };
 
-    const onLogout = () => {
-    
+    const auth0userLogout = () => {
+    localStorage.clear() ;
     localStorage.removeItem("auth0user");
     Cookies.remove("auth0user")
     dispatch(logOutAuth0User());
@@ -200,8 +167,17 @@ function AuthNavbar({ onPostAdded }) {
       .then((res) => {
         console.log(res);
         handleFriendRequests();
+        setSnackbarSeverity("success") ;
+        setSnackbarMessage(res.data.message) ;
+        setSnackbarOpen(true) ;
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        console.log(error)
+        handleFriendRequests();
+        setSnackbarSeverity("error") ;
+        setSnackbarMessage(error.response.data.error) ;
+        setSnackbarOpen(true) ;
+      });
   };
   const handleAcceptRequest = (requestUser) => {
     console.log(requestUser);
@@ -217,8 +193,17 @@ function AuthNavbar({ onPostAdded }) {
       .then((res) => {
         console.log(res);
         handleFriendRequests();
+        setSnackbarSeverity("success") ;
+        setSnackbarMessage(res.data.message) ;
+        setSnackbarOpen(true) ;
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        console.log(error)
+        handleFriendRequests();
+        setSnackbarSeverity("error") ;
+        setSnackbarMessage(error.response.data.error) ;
+        setSnackbarOpen(true) ;
+      });
   };
 
   if(isLoading){
@@ -228,6 +213,14 @@ function AuthNavbar({ onPostAdded }) {
       </Typography>
     )
    }
+
+   const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
   return (
     <AppBar position="sticky">
       <StyledToolbar>
@@ -381,29 +374,36 @@ function AuthNavbar({ onPostAdded }) {
           onChange={(e) => handleImageUpload(e.target.files[0])}
           //onClick={(e) => setAnchorEl(e.currentTarget)}
         />
-        <MenuItem>
+        {/* <MenuItem>
           <label htmlFor="image-upload">Update profile</label>
-        </MenuItem>
+        </MenuItem> */}
         {/* <MenuItem onClick={(e) => closeMenu()}>My account</MenuItem> */}
         <MenuItem
           onClick={() => {
             // setUserState({});
-            onLogout();
+            auth0userLogout();
             closeMenu();
           }}
         >
           Logout
         </MenuItem>
-        <MenuItem
+        {/* <MenuItem
           onClick={() => {
-            handleDeleteAccount(selector.email);
+            handleDeleteAccount(user.email);
 
             closeMenu();
           }}
         >
           Delete account
-        </MenuItem>
+        </MenuItem> */}
       </Menu>
+
+      <CustomSnackbar
+        open={snackbarOpen}
+        onClose={handleSnackbarClose}
+        severity={snackbarSeverity}
+        message={snackbarMessage}
+      />
     </AppBar>
   );
 }

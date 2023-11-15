@@ -143,18 +143,18 @@ function LoginPage() {
       </Typography>
     )
    }
-   const test = () => {
-    const u = {name : 'raja', age : 26}
-    const obj = JSON.stringify(u)
-    localStorage.setItem("auth0user", JSON.stringify({"given_name":"Rajesh","family_name":"nasina","nickname":"rajeshnasina123","name":"Rajesh nasina","picture":"https://lh3.googleusercontent.com/a/ACg8ocJU6aFQzNn993fqYXG-YMnmeuT5ky9dLqGTPqyJYf9EGWU=s96-c","locale":"en","updated_at":"2023-11-09T07:08:35.054Z","email":"rajeshnasina123@gmail.com","email_verified":true,"sub":"google-oauth2|100191588854045195580"}))
-   }
-   const clear = () => {
-    localStorage.removeItem("auth0user")
-   }
+  //  const test = () => {
+  //   const u = {name : 'raja', age : 26}
+  //   const obj = JSON.stringify(u)
+  //   localStorage.setItem("auth0user", JSON.stringify({"given_name":"Rajesh","family_name":"nasina","nickname":"rajeshnasina123","name":"Rajesh nasina","picture":"https://lh3.googleusercontent.com/a/ACg8ocJU6aFQzNn993fqYXG-YMnmeuT5ky9dLqGTPqyJYf9EGWU=s96-c","locale":"en","updated_at":"2023-11-09T07:08:35.054Z","email":"rajeshnasina123@gmail.com","email_verified":true,"sub":"google-oauth2|100191588854045195580"}))
+  //  }
+  //  const clear = () => {
+  //   localStorage.removeItem("auth0user")
+  //  }
   return (
     <>
-    <Button onClick={()=>test()}>test</Button>
-    <Button onClick={()=>clear()}>clear</Button>
+    {/* <Button onClick={()=>test()}>test</Button>
+    <Button onClick={()=>clear()}>clear</Button> */}
 
     <Container
       sx={{

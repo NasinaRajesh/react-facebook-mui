@@ -53,7 +53,7 @@ import { useSelector } from "react-redux";
     
   }, [selector, postAdded]);
 
-  const formatTimestamp = (timestamp) => {
+ const formatTimestamp = (timestamp) => {
     const options = {
       year: "numeric",
       month: "long",
@@ -65,6 +65,7 @@ import { useSelector } from "react-redux";
     const date = new Date(timestamp);
     return date.toLocaleDateString("en-US", options);
   };
+
 
   const handleDeleteClick = (postId) => {
     const check  = window.confirm("Are you sure you want to delete")

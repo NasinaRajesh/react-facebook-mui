@@ -23,13 +23,27 @@ import {
   Article,
   Group,
   Home,
+  LogoutOutlined,
   ModeNight,
   PersonSearch,
   Settings,
   Storefront,
   
 } from "@mui/icons-material";
+import { useAuth0 } from "@auth0/auth0-react";
+import { useDispatch } from "react-redux";
+import { logOutAuth0User } from "../../UserStateSlice";
+import { useNavigate } from "react-router-dom";
 function AuthSideBar() {
+  const navigatesTo = useNavigate() ;
+  const dispatch = useDispatch() ;
+  const {logout} = useAuth0() ;
+  const auth0userLogout = () => {
+    localStorage.removeItem("auth0user");
+    dispatch(logOutAuth0User());
+    logout({ logoutParams: { returnTo: window.location.origin } });
+    navigatesTo("/");
+  };
   return (
     <Box flex={1} p={2}  sx={{ display: { xs: "none", sm: "block" } ,  }}>
       <Box position="fixed"  >
@@ -97,6 +111,8 @@ function AuthSideBar() {
             </ListItemButton>
           </ListItem>
 
+          
+
           <ListItem disablePadding>
             <ListItemButton component="a" href="#switch">
               <ListItemIcon>
@@ -106,6 +122,15 @@ function AuthSideBar() {
                 
               />
             </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+             <ListItemButton onClick={()=>auth0userLogout()} >
+               <ListItemIcon>
+                <LogoutOutlined/>
+               </ListItemIcon>
+               <ListItemText primary="Logout" />
+              </ListItemButton>
           </ListItem>
         </List>
       </Box>
