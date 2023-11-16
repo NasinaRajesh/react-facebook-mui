@@ -125,7 +125,7 @@ function RegistrationPage() {
       birthdate: selectedDate && formatedate(selectedDate),
     };
 
-    axios
+    axios 
       .post(urls.register, registrationDetails)
       .then((res) => {
         console.log(res);
