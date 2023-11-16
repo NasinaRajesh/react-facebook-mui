@@ -19,7 +19,11 @@ import { MoreVert } from "@mui/icons-material";
 import MuiConfirmModal from "../../MuiConfirmModal";
 import CustomSnackbar from "../../CustomSnackbar";
 function AuthFeeds({ postAdded }) {
-  const { user } = useAuth0();
+  const { user, isAuthenticated } = useAuth0();
+  if(isAuthenticated){
+    console.log(user)
+  }
+  
   const [loading, setLoading] = useState(true);
   const [userFeeds, setUserFeeds] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -47,7 +51,10 @@ function AuthFeeds({ postAdded }) {
   };
 
   useEffect(() => {
-    fetchAllUserFeeds();
+    
+      fetchAllUserFeeds();
+    
+    
   }, [user, postAdded]);
   const formatTimestamp = (timestamp) => {
     const options = {
@@ -153,9 +160,24 @@ function AuthFeeds({ postAdded }) {
     }
     setSnackbarOpen(false);
   };
+  // console.log(userFeeds.data.posts)
+  //  if(userFeeds.data.posts.length === 0){
+  //     console.log("posts are empty")
+  //  }
+
+  if(userFeeds.length === 0){
+    return (
+      
+        <Typography variant="body1" sx={{ textAlign: "center" ,py:2}}>
+           Share you're thoughts while creating posts
+          </Typography>
+    
+    )
+  }
   return (
     <Box flex={2} p={2}>
       <Box>
+      
         {loading ? (
           <Typography variant="body1" sx={{ textAlign: "center", py: 2 }}>
             <CircularProgress />

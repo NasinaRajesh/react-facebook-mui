@@ -17,6 +17,7 @@ import {
   ListItemIcon,
   ListItemText,
   Switch,
+  Typography,
 } from "@mui/material";
 import {
   AccountBox,
@@ -37,13 +38,22 @@ import { useNavigate } from "react-router-dom";
 function AuthSideBar() {
   const navigatesTo = useNavigate() ;
   const dispatch = useDispatch() ;
-  const {logout} = useAuth0() ;
+  const {logout, isLoading} = useAuth0() ;
   const auth0userLogout = () => {
     localStorage.removeItem("auth0user");
     dispatch(logOutAuth0User());
     logout({ logoutParams: { returnTo: window.location.origin } });
-    navigatesTo("/");
+    
   };
+
+  if(isLoading){
+    console.log("react auth0 isLoading called")
+    return(
+      <Typography sx={{textAlign:'center', py:5}}>
+        loading...
+      </Typography>
+    )
+   }
   return (
     <Box flex={1} p={2}  sx={{ display: { xs: "none", sm: "block" } ,  }}>
       <Box position="fixed"  >

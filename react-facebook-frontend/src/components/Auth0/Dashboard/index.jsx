@@ -116,12 +116,12 @@ const closeMenu = () => {
   };
 
     const auth0userLogout = () => {
-    localStorage.clear() ;
+    
     localStorage.removeItem("auth0user");
     Cookies.remove("auth0user")
     dispatch(logOutAuth0User());
     logout({ logoutParams: { returnTo: window.location.origin } });
-    navigatesTo("/");
+    // navigatesTo("/");
   };
 
   const handleDeleteAccount = (userId) => {
@@ -144,7 +144,7 @@ const closeMenu = () => {
       handleFriendRequests()
     },[selector.email])
   const handleFriendRequests = () => {
-    console.log("handleFriendRequest called");
+    console.log("handleFriendRequest called"); 
     setLoading(true)
     axios
       .post(`${auth0urls.friendRequests}`, {
