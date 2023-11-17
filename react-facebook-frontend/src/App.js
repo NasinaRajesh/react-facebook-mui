@@ -4,7 +4,7 @@ import SideBar from "./components/SideBar";
 
 import RightBar from "./components/RightBar";
 import Feed from "./components/Feed";
-import { Box, Stack, ThemeProvider, createTheme } from "@mui/material";
+import { Box, Stack, ThemeProvider, Typography, createTheme } from "@mui/material";
 import Navbar from "./components/Navbar";
 import AddPost from "./components/AddPost";
 import LoginPage from "./components/LoginPage";
@@ -21,8 +21,10 @@ import AuthRightBar from "./components/Auth0/Rightbar";
 import AuthFeeds from "./components/Auth0/AuthFeeds";
 import AuthAddPost from "./components/Auth0/AuthAddPost";
 
+import { useAuth0 } from "@auth0/auth0-react";
 
 function App() {
+  
   const selector = useSelector((state) => state.LoggedUser.user);
   console.log(selector);
   const [mode, setMode] = useState("light");
@@ -76,6 +78,12 @@ function App() {
     const [postAdded, setPostAdded] = useState(false); //  to trigger Feed component when creating a post in AuthPost component update
     const [openModal, setOpenModal] = useState(false) ;
     const [selectedPost, setSelectedPost] = useState({ postcontent: '' });
+    const {isLoading} = useAuth0() ;
+    if(isLoading){
+      return(
+        <Typography sx={{textAlign:'center', py:2}} variant="body2">loading...</Typography>
+      )
+    }
     return(
      <Box>
       <AuthNavbar/>
@@ -91,6 +99,11 @@ function App() {
     )
   }
 
+  // const {isLoading} = useAuth0() ;
+  // if(isLoading){
+  //   console.log("auth0 isLoading from app.jsx")
+  //   return <Typography  variant="body2" sx={{textAlign:'center', py:2}}>isLoading...</Typography>
+  // }
 
   return (
     <BrowserRouter>

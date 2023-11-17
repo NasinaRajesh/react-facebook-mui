@@ -22,11 +22,7 @@ import { useSelector } from "react-redux";
 function AuthFeeds({ postAdded, setOpenModal, setSelectedPost }) {
   const selector = useSelector((state)=> state.LoggedUser.auth0user)
   console.log(selector.email)
-  const { user, isAuthenticated } = useAuth0();
-  // if (isAuthenticated) {
-  //   console.log(user);
-  // }
-
+  const { user } = useAuth0();
   const [loading, setLoading] = useState(true);
   const [userFeeds, setUserFeeds] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -46,6 +42,7 @@ function AuthFeeds({ postAdded, setOpenModal, setSelectedPost }) {
         .then((res) => {
           console.log("Feeds response for auth0user: ", res);
           setUserFeeds(res.data);
+          setLoading(true)
         })
         .catch((error) => {
           console.log(error);
@@ -110,16 +107,6 @@ function AuthFeeds({ postAdded, setOpenModal, setSelectedPost }) {
     console.log("postcontent: ",postcontent, postId) ;
     setOpenModal(true) ;
     setSelectedPost({postcontent, postId}) ;
-
-    // axios
-    //   .get(`${auth0urls.getPost}?emailId=${selector.email}&postId=${postId}`)
-    //   .then((res) => {
-    //     console.log("Edit responce: ", res);
-    //     setOpenModal(true) ;
-    //     setSelectedPost(res.data)
-    //   })
-    //   .catch((err) => console.log(err))
-    //   .finally(() => {});
   };
 
   const toggleMenu = (cardId, event) => {
@@ -142,12 +129,8 @@ function AuthFeeds({ postAdded, setOpenModal, setSelectedPost }) {
     }
     setSnackbarOpen(false);
   };
-  // console.log(userFeeds.data.posts)
-  //  if(userFeeds.data.posts.length === 0){
-  //     console.log("posts are empty")
-  //  }
 
-  if (userFeeds.length === 0) {
+ if (userFeeds.length === 0) {
     return (
       <Typography variant="body1" sx={{ textAlign: "center", py: 2 }}>
         Share you're thoughts while creating posts
