@@ -130,6 +130,32 @@ const RejectRequest = async (req, res) => {
     }
   };
 
+  const getPost = async (req, res) => {
+    const { emailId, postId } = req.query;
+    //console.log(userId, postId)
+    try {
+      // Find the user by _id
+      const user = await FacebookModel.findOne({email : emailId});
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Find the post within the user's posts array by _id
+      const post = user.posts.find((post) => post._id.equals(postId));
+  
+      if (!post) {
+        return res.status(404).json({ message: 'Post not found' });
+      }
+  
+      // Return the post as the response
+      res.status(200).json(post);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
   const deletePost = async (req, res) => {
     const { emailId, postId } = req.query;
   
@@ -160,4 +186,41 @@ const RejectRequest = async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   }
-  module.exports = {FriendRequests, RejectRequest, AcceptRequest, createPost, getPosts, deletePost}
+
+  const updatePostContent = async (req, res) => {
+    const { postDetails } = req.body;
+    const { emailId, postId } = req.query;
+    // console.log(emailId, postId)
+    // console.log(postDetails, "post details from frontend")
+    try {
+      if (!postDetails.postcontent ) {
+        return res.status(400).json({ error: 'post content required.' });
+      }
+      // Find the user based on the provided userId
+      const user = await FacebookModel.findOne({email : emailId});
+      // console.log(user.posts._id, postId)
+      if (!user) {
+        return res.status(404).json({ error: 'User not found.' });
+      }
+  
+      // Find the post to update in the user's posts array
+      const postToUpdate = user.posts.find((post) => post._id.toString() === postId);
+      
+      if (!postToUpdate) {
+        return res.status(404).json({ error: 'Post not found.' });
+      }
+  
+      // Update the post postcontent
+      postToUpdate.postcontent = postDetails.postcontent;
+      // Update the postimageUrl
+      postToUpdate.postimageUrl = postDetails.postimageUrl
+      // Save the updated user document
+      await user.save();
+  
+      res.status(200).json({ message: 'Post updated successfully.' });
+    } catch (error) {
+      console.error('Error updating post content:', error);
+      res.status(500).json({ error: 'Internal server error.' });
+    }
+  };
+  module.exports = {FriendRequests, RejectRequest, AcceptRequest, createPost, getPosts, deletePost, getPost, updatePostContent}

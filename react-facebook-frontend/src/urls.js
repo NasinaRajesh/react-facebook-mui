@@ -26,4 +26,6 @@ export const auth0urls = {
     createpost : `${auth0server}/create-post`,
     getposts : `${auth0server}/get-posts`,
     deletepost : `${auth0server}/delete-post` ,
+    getPost : `${auth0server}/get-post`,
+    updatePost : `${auth0server}/update-post`
 } 

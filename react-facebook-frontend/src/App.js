@@ -73,17 +73,19 @@ function App() {
   }
 
   function AuthDashboard(){
-    const [postAdded, setPostAdded] = useState(false); // Add a flag to trigger Feed component update
+    const [postAdded, setPostAdded] = useState(false); //  to trigger Feed component when creating a post in AuthPost component update
+    const [openModal, setOpenModal] = useState(false) ;
+    const [selectedPost, setSelectedPost] = useState({ postcontent: '' });
     return(
      <Box>
       <AuthNavbar/>
       <Stack direction="row" spacing={2} justifyContent="space-around">
         <AuthSideBar/>
-        <AuthFeeds postAdded={postAdded}/>
+        <AuthFeeds postAdded={postAdded} setOpenModal={setOpenModal} setSelectedPost={setSelectedPost}/>
         <AuthRightBar/>
       </Stack>
 
-      <AuthAddPost onPostAdded={()=>setPostAdded(!postAdded)}/>
+      <AuthAddPost onPostAdded={()=>setPostAdded(!postAdded) } openModal={openModal} setOpenModal={setOpenModal} selectedPost={selectedPost} setSelectedPost={setSelectedPost}/>
       
       </Box>
     )

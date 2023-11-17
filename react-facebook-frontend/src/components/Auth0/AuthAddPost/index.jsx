@@ -35,11 +35,19 @@ const UserBox = styled(Box)({
   alignItems: "center",
   marginBottom: "20px",
 });
-function AuthAddPost({ onPostAdded }) {
+function AuthAddPost({
+  onPostAdded,
+  openModal,
+  setOpenModal,
+  selectedPost,
+  setSelectedPost,
+}) {
+  console.log("selectedPost: ", selectedPost, openModal);
   const [open, setOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
+  //const [selectedImage, setSelectedImage] = useState(null);
   const [postimageUrl, setPostImageUrl] = useState(""); // State to store the URL of the selected image
-  const [postcontent, setPostContent] = useState("");
+  //  console.log(postContent)
+
   const { user, isAuthenticated, isLoading } = useAuth0();
   const [errorMessage, setErrorMessage] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -47,15 +55,14 @@ function AuthAddPost({ onPostAdded }) {
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const handleSnackbarClose = (event, reason) => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
     setSnackbarOpen(false);
   };
 
-
   const handleImageUpload = (file) => {
-    setSelectedImage(file);
+    //setSelectedImage(file);
     // Display the selected image in the TextField
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -64,38 +71,74 @@ function AuthAddPost({ onPostAdded }) {
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const postDetails = {
-      postcontent: postcontent,
-      postimageUrl: postimageUrl,
-    };
-    console.log(postDetails);
-
+  const updatePost = (postDetails) => {
+    const postId = selectedPost.postId;
+    //console.log("updated post content function is called")
     axios
-      .post(`${auth0urls.createpost}?emailId=${user.email}`, postDetails, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      .patch(`${auth0urls.updatePost}?emailId=${user.email}&postId=${postId}`, {
+        postDetails: postDetails,
       })
       .then((res) => {
-        console.log("Post successfully created!");
-        console.log("Response data:", res);
-        setOpen(false);
-        // setOnEditClick(false);
+        console.log("Post successfully updated!");
+        console.log("updated Response data:", res.data.message);
+        setSnackbarSeverity("success");
+        setSnackbarMessage(res.data.message);
+        setSnackbarOpen(true);
+        setOpenModal(false);
+        // Trigger the onPostAdded callback to update Feed component
         onPostAdded();
-        setSnackbarSeverity("success") ;
-        setSnackbarMessage(res.data.message) ;
-        setSnackbarOpen(true)
+        //navigate("/", { replace: true });
+        setSelectedPost({ postcontent: "" });
       })
       .catch((error) => {
         console.log(error, "error msg");
         setErrorMessage(error.response.data.error);
-        setSnackbarSeverity("error") ;
-        setSnackbarMessage(error.response.data.error) ;
-        setSnackbarOpen(true)
+        setSnackbarSeverity("error");
+        setSnackbarMessage(error.response.data.error);
+        setSnackbarOpen(true);
       });
-    // .finally(() => setLoading(false));
+  };
+  
+  const createPost = (postDetails)=>{
+    axios
+        .post(`${auth0urls.createpost}?emailId=${user.email}`, postDetails, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then((res) => {
+          console.log("Post successfully created!");
+          console.log("Response data:", res);
+          setOpen(false);
+          // setOnEditClick(false);
+          onPostAdded();
+          setSnackbarSeverity("success");
+          setSnackbarMessage(res.data.message);
+          setSnackbarOpen(true);
+        })
+        .catch((error) => {
+          console.log(error, "error msg");
+          setErrorMessage(error.response.data.error);
+          setSnackbarSeverity("error");
+          setSnackbarMessage(error.response.data.error);
+          setSnackbarOpen(true);
+        });
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const postDetails = {
+      postcontent: selectedPost.postcontent,
+      postimageUrl: postimageUrl,
+    };
+    console.log(postDetails);
+
+    if (openModal && selectedPost.postId) {
+      updatePost(postDetails);
+    } else {
+      createPost(postDetails)
+      // .finally(() => setLoading(false));
+    }
   };
 
   return (
@@ -104,8 +147,8 @@ function AuthAddPost({ onPostAdded }) {
         onClick={(e) => {
           setOpen(true);
           setPostImageUrl(null);
-          setPostContent(null);
           setErrorMessage(null);
+          setSelectedPost("");
         }}
         title="create a new post"
         sx={{
@@ -120,9 +163,11 @@ function AuthAddPost({ onPostAdded }) {
       </Tooltip>
 
       <StyledModal
-        open={open}
+        open={open || openModal}
         onClose={(e) => {
           setOpen(false);
+
+          setOpenModal(false);
         }}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
@@ -163,13 +208,16 @@ function AuthAddPost({ onPostAdded }) {
             <TextField
               sx={{ width: "100%" }}
               label="What's on your mind"
-              //value={postContent ? postContent : ""}
+              value={selectedPost.postcontent}
               multiline
               rows={3}
               placeholder="Default Value"
               variant="standard"
               onChange={(e) => {
-                setPostContent(e.target.value);
+                setSelectedPost((prevSelectedPost) => ({
+                  ...prevSelectedPost,
+                  postcontent: e.target.value,
+                }));
                 setErrorMessage(null);
               }}
             />

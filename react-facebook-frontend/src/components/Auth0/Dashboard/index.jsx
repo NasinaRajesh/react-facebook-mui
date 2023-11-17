@@ -45,7 +45,7 @@ function AuthNavbar({ onPostAdded }) {
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const { logout, isLoading, user } = useAuth0();
-  console.log(user)
+  //console.log(user)
   const dispatch = useDispatch();
   const selector = useSelector((state) => state.LoggedUser.auth0user);
   console.log(selector);

@@ -10,4 +10,6 @@ router.post('/accept-request', FacebookController.AcceptRequest) ;
 router.post('/create-post', FacebookController.createPost) ;
 router.get('/get-posts', FacebookController.getPosts) ;
 router.delete('/delete-post', FacebookController.deletePost) ;
+router.get('/get-post', FacebookController.getPost) ;
+router.patch('/update-post', FacebookController.updatePostContent) ;
 module.exports = router;
