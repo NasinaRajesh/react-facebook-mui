@@ -40,7 +40,6 @@ const UserBox = styled(Box)({
 });
 
 function AddPost({
-  userState,
   onPostAdded,
   onEditClick,
   setOnEditClick,

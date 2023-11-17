@@ -18,12 +18,15 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { MoreVert } from "@mui/icons-material";
 import MuiConfirmModal from "../../MuiConfirmModal";
 import CustomSnackbar from "../../CustomSnackbar";
-function AuthFeeds({ postAdded }) {
+import { useSelector } from "react-redux";
+function AuthFeeds({ postAdded, setOpenModal, setSelectedPost }) {
+  const selector = useSelector((state)=> state.LoggedUser.auth0user)
+  console.log(selector.email)
   const { user, isAuthenticated } = useAuth0();
-  if(isAuthenticated){
-    console.log(user)
-  }
-  
+  // if (isAuthenticated) {
+  //   console.log(user);
+  // }
+
   const [loading, setLoading] = useState(true);
   const [userFeeds, setUserFeeds] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -34,11 +37,12 @@ function AuthFeeds({ postAdded }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState("");
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  
   const fetchAllUserFeeds = () => {
     console.log("fetchAllUserFeeds are called");
-    if (user.email) {
+    if (selector.email) {
       axios
-        .get(`${auth0urls.getposts}?emailId=${user.email}`)
+        .get(`${auth0urls.getposts}?emailId=${selector.email}`)
         .then((res) => {
           console.log("Feeds response for auth0user: ", res);
           setUserFeeds(res.data);
@@ -51,11 +55,8 @@ function AuthFeeds({ postAdded }) {
   };
 
   useEffect(() => {
-    
-      fetchAllUserFeeds();
-    
-    
-  }, [user, postAdded]);
+    fetchAllUserFeeds();
+  }, [selector, postAdded]);
   const formatTimestamp = (timestamp) => {
     const options = {
       year: "numeric",
@@ -69,48 +70,29 @@ function AuthFeeds({ postAdded }) {
     return date.toLocaleDateString("en-US", options);
   };
 
-  // const handleDeleteClick = (postId) => {
-  //   const check  = window.confirm("Are you sure you want to delete")
-  //   //alert(postId)
-  //   // console.log(check)
-  //   if (user && postId && check) {
-  //     axios
-  //       .delete(
-  //         `${auth0urls.deletepost}?emailId=${user.email}&postId=${postId}`
-  //       )
-  //       .then((res) => {
-  //         console.log(res);
-  //         fetchAllUserFeeds() ;
-
-  //       })
-  //       .catch((err) => console.log(err))
-
-  //   }
-  // };
-
   const handleDeleteClick = (postId) => {
     setPostIdToDelete(postId);
     setConfirmModalOpen(true);
   };
 
   const handleConfirmDelete = () => {
-    if (user && postIdToDelete) {
+    if (selector && postIdToDelete) {
       axios
         .delete(
-          `${auth0urls.deletepost}?emailId=${user.email}&postId=${postIdToDelete}`
+          `${auth0urls.deletepost}?emailId=${selector.email}&postId=${postIdToDelete}`
         )
         .then((res) => {
           console.log(res);
           fetchAllUserFeeds();
-          setSnackbarSeverity("success")
-          setSnackbarMessage(res.data.message)
-          setSnackbarOpen(true)
+          setSnackbarSeverity("success");
+          setSnackbarMessage(res.data.message);
+          setSnackbarOpen(true);
         })
         .catch((err) => {
-          console.log(err)
-          setSnackbarSeverity("error")
-          setSnackbarMessage(err.data.message)
-          setSnackbarOpen(true)
+          console.log(err);
+          setSnackbarSeverity("error");
+          setSnackbarMessage(err.data.message);
+          setSnackbarOpen(true);
         })
         .finally(() => {
           setPostIdToDelete(null);
@@ -124,20 +106,20 @@ function AuthFeeds({ postAdded }) {
     setConfirmModalOpen(false);
   };
 
-  const handleEditClick = (postId) => {
-    alert(postId);
+  const handleEditClick = (postcontent, postId) => {
+    console.log("postcontent: ",postcontent, postId) ;
+    setOpenModal(true) ;
+    setSelectedPost({postcontent, postId}) ;
 
-    // axios.get(`${urls.getpost}?userId=${selector.user.id}&postId=${postId}`)
-    // .then(res=>{
-    //   console.log("Edit responce: ",res)
-    //   setSelectedPost(res)
-    //   setOnEditClick(true)
-    //   closeMenu()
-    // })
-    // .catch(err => console.log(err))
-    // .finally(()=>{
-
-    // })
+    // axios
+    //   .get(`${auth0urls.getPost}?emailId=${selector.email}&postId=${postId}`)
+    //   .then((res) => {
+    //     console.log("Edit responce: ", res);
+    //     setOpenModal(true) ;
+    //     setSelectedPost(res.data)
+    //   })
+    //   .catch((err) => console.log(err))
+    //   .finally(() => {});
   };
 
   const toggleMenu = (cardId, event) => {
@@ -155,7 +137,7 @@ function AuthFeeds({ postAdded }) {
   };
 
   const handleSnackbarClose = (event, reason) => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
     setSnackbarOpen(false);
@@ -165,19 +147,16 @@ function AuthFeeds({ postAdded }) {
   //     console.log("posts are empty")
   //  }
 
-  if(userFeeds.length === 0){
+  if (userFeeds.length === 0) {
     return (
-      
-        <Typography variant="body1" sx={{ textAlign: "center" ,py:2}}>
-           Share you're thoughts while creating posts
-          </Typography>
-    
-    )
+      <Typography variant="body1" sx={{ textAlign: "center", py: 2 }}>
+        Share you're thoughts while creating posts
+      </Typography>
+    );
   }
   return (
     <Box flex={2} p={2}>
       <Box>
-      
         {loading ? (
           <Typography variant="body1" sx={{ textAlign: "center", py: 2 }}>
             <CircularProgress />
@@ -248,7 +227,7 @@ function AuthFeeds({ postAdded }) {
                     >
                       <MenuItem
                         onClick={() => {
-                          handleEditClick(feed._id);
+                          handleEditClick(feed.postcontent, feed._id);
                           closeMenu();
                         }}
                       >
