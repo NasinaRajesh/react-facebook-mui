@@ -169,7 +169,7 @@ const RejectRequest = async (req, res) => {
       }
   
       // Find the index of the post to delete by _id
-      const postIndex = user.posts.findIndex((post) => post._id.equals(postIdAsObjectId)); // compare selected postId with user postId
+      const postIndex = user.posts.findIndex((post) => post._id.equals(postIdAsObjectId)); // compare selected postId with user postId .equals() is mongodb method
       if (postIndex === -1) {
         return res.status(404).json({ message: 'Post not found' });
       }
@@ -223,4 +223,5 @@ const RejectRequest = async (req, res) => {
       res.status(500).json({ error: 'Internal server error.' });
     }
   };
+
   module.exports = {FriendRequests, RejectRequest, AcceptRequest, createPost, getPosts, deletePost, getPost, updatePostContent}
