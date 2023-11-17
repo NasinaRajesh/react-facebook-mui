@@ -42,12 +42,11 @@ function AuthAddPost({
   selectedPost,
   setSelectedPost,
 }) {
-  console.log("selectedPost: ", selectedPost, openModal);
+  // console.log("selectedPost: ", selectedPost, openModal);
   const [open, setOpen] = useState(false);
   //const [selectedImage, setSelectedImage] = useState(null);
   const [postimageUrl, setPostImageUrl] = useState(""); // State to store the URL of the selected image
   //  console.log(postContent)
-
   const { user, isAuthenticated, isLoading } = useAuth0();
   const [errorMessage, setErrorMessage] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -183,7 +182,7 @@ function AuthAddPost({
           component="form"
           onSubmit={handleSubmit}
           noValidate
-        >
+        >  
           <Typography
             variant="h6"
             component="h6"
