@@ -8,7 +8,7 @@ import { Box, Stack, ThemeProvider, Typography, createTheme } from "@mui/materia
 import Navbar from "./components/Navbar";
 import AddPost from "./components/AddPost";
 import LoginPage from "./components/LoginPage";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import RegistrationPage from "./components/RegistrationPage";
 
 import NoPage from "./components/NoPage";
@@ -22,9 +22,10 @@ import AuthFeeds from "./components/Auth0/AuthFeeds";
 import AuthAddPost from "./components/Auth0/AuthAddPost";
 
 import { useAuth0 } from "@auth0/auth0-react";
+import Friends from "./components/Auth0/Sidebar/Friends";
 
 function App() {
-  
+
   const selector = useSelector((state) => state.LoggedUser.user);
   console.log(selector);
   const [mode, setMode] = useState("light");
@@ -38,13 +39,13 @@ function App() {
     palette: {
       mode: mode,
     },
-    primary : {
-      main : '#2222'
+    primary: {
+      main: '#2222'
     },
-    secondary : {
-      main : 'red'
+    secondary: {
+      main: 'red'
     }
-    
+
   });
 
   function MainPage() {
@@ -74,36 +75,31 @@ function App() {
     );
   }
 
-  function AuthDashboard(){
+  function AuthDashboard() {
     const [postAdded, setPostAdded] = useState(false); //  to trigger Feed component when creating a post in AuthPost component update
-    const [openModal, setOpenModal] = useState(false) ;
+    const [openModal, setOpenModal] = useState(false);
     const [selectedPost, setSelectedPost] = useState({ postcontent: '' });
-    const {isLoading} = useAuth0() ;
-    if(isLoading){
-      return(
-        <Typography sx={{textAlign:'center', py:2}} variant="body2">loading...</Typography>
+    const { isLoading } = useAuth0();
+    if (isLoading) {
+      return (
+        <Typography sx={{ textAlign: 'center', py: 2 }} variant="body2">loading...</Typography>
       )
     }
-    return(
-     <Box>
-      <AuthNavbar/>
-      <Stack direction="row" spacing={2} justifyContent="space-around">
-        <AuthSideBar/>
-        <AuthFeeds postAdded={postAdded} setOpenModal={setOpenModal} setSelectedPost={setSelectedPost}/>
-        <AuthRightBar/>
-      </Stack>
+    return (
+      <Box>
+        <AuthNavbar />
+        <Stack direction="row" spacing={2} justifyContent="space-around">
+          <AuthSideBar />
+          <AuthFeeds postAdded={postAdded} setOpenModal={setOpenModal} setSelectedPost={setSelectedPost} />
+          <AuthRightBar />
+        </Stack>
 
-      <AuthAddPost onPostAdded={()=>setPostAdded(!postAdded) } openModal={openModal} setOpenModal={setOpenModal} selectedPost={selectedPost} setSelectedPost={setSelectedPost}/>
-      
+        <AuthAddPost onPostAdded={() => setPostAdded(!postAdded)} openModal={openModal} setOpenModal={setOpenModal} selectedPost={selectedPost} setSelectedPost={setSelectedPost} />
+
       </Box>
     )
   }
 
-  // const {isLoading} = useAuth0() ;
-  // if(isLoading){
-  //   console.log("auth0 isLoading from app.jsx")
-  //   return <Typography  variant="body2" sx={{textAlign:'center', py:2}}>isLoading...</Typography>
-  // }
 
   return (
     <BrowserRouter>
@@ -112,11 +108,11 @@ function App() {
           <Route path="/" element={<LoginPage />}></Route>
           <Route
             path="/dash"
-            element={selector ?   <MainPage /> : <Navigate to="/" /> }
+            element={selector ? <MainPage /> : <Navigate to="/" />}
           ></Route>
           <Route path="*" element={<NoPage />}></Route>
           <Route path="/signup" element={<RegistrationPage />}></Route>
-          <Route path="/authdash" element={<AuthDashboard/>}></Route> 
+          <Route path="/authdash" element={<AuthDashboard />}></Route>
         </Routes>
       </ThemeProvider>
     </BrowserRouter>

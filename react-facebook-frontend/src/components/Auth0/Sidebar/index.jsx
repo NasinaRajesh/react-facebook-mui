@@ -95,7 +95,7 @@ function AuthSideBar() {
           </ListItem>
 
           <ListItem disablePadding>
-            <ListItemButton component="a" href="#Friends">
+            <ListItemButton component="a" href="#friends">
               <ListItemIcon>
                 <PersonSearch />
               </ListItemIcon>

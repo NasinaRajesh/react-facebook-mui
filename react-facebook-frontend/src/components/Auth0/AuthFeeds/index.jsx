@@ -133,7 +133,7 @@ function AuthFeeds({ postAdded, setOpenModal, setSelectedPost }) {
  if (userFeeds.length === 0) {
     return (
       <Typography variant="body1" sx={{ textAlign: "center", py: 2 }}>
-        Share you're thoughts while creating posts
+        Share you're thoughts to creating posts
       </Typography>
     );
   }
