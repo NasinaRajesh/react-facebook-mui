@@ -22,7 +22,9 @@ root.render(
         domain="dev-8c0es5gx0fgv2mbe.us.auth0.com" // Auth0 domain
         clientId="l7fV8opGa96ewyIFXqlhhW3qtlPxfOnf" // Auth0 client ID
         authorizationParams={{
-          redirect_uri: window.location.origin
+          redirect_uri: window.location.origin,
+          // audience: "https://dev-8c0es5gx0fgv2mbe.us.auth0.com/api/v2/",
+          // scope: "read:current_user update:current_user_metadata"
         }}
       >
         <App />

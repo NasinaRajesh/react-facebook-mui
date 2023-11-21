@@ -87,7 +87,7 @@ const validationSchema = Yup.object().shape({
 });
 
 function LoginPage() {
-  const { loginWithRedirect, logout, user, isAuthenticated, isLoading } = useAuth0();
+  const { loginWithRedirect, logout, user, isAuthenticated, isLoading , getAccessTokenSilently} = useAuth0();
   const [invalidCredentials, setInvalidCredentials] = useState("");
   const [Loading, setLoading] = useState(false); // State to track loading status
   const [showPassword, setShowPassword] = useState(true); // State to toggle password visibility
@@ -129,12 +129,15 @@ function LoginPage() {
       });
   };
 
+  
   if(isAuthenticated){
     console.log(user)
+    
     dispatch(getAuth0LoggedUser(user))
     localStorage.setItem("auth0user", JSON.stringify(user))
      //return <LoggedUerProfile auth0User={user}/>
-     navigatesTo("/authdash")
+
+     navigatesTo("/authdash") 
    }
    if(isLoading){
     return(

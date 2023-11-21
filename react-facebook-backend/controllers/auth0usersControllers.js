@@ -191,7 +191,7 @@ const RejectRequest = async (req, res) => {
     const { postDetails } = req.body;
     const { emailId, postId } = req.query;
     // console.log(emailId, postId)
-    // console.log(postDetails, "post details from frontend")
+    console.log(postDetails, "post details from frontend")
     try {
       if (!postDetails.postcontent ) {
         return res.status(400).json({ error: 'post content required.' });
@@ -213,7 +213,7 @@ const RejectRequest = async (req, res) => {
       // Update the post postcontent
       postToUpdate.postcontent = postDetails.postcontent;
       // Update the postimageUrl
-      postToUpdate.postimageUrl = postDetails.postimageUrl
+      //postToUpdate.postimageUrl = postDetails.postimageUrl
       // Save the updated user document
       await user.save();
   

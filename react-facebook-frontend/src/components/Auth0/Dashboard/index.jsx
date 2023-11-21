@@ -30,6 +30,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import Cookies from 'js-cookie' ;
+import jwtDecode from "jwt-decode";
 // reducers
 // import { logOutUser } from "../UserStateSlice";
 // import { updateProfilePicture } from "../UserStateSlice";
@@ -44,7 +45,7 @@ function AuthNavbar({ onPostAdded }) {
   const [snackbarSeverity, setSnackbarSeverity] = useState("");
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  const { logout, isLoading, user } = useAuth0();
+  const { logout, isLoading, user, getAccessTokenSilently, isAuthenticated } = useAuth0();
   //console.log(user)
   const dispatch = useDispatch();
   const selector = useSelector((state) => state.LoggedUser.auth0user);
@@ -54,19 +55,58 @@ function AuthNavbar({ onPostAdded }) {
   const [open, setOpen] = useState(false);
   const [profilePicture, setProfilePicture] = useState(null); // State to store the URL of the selected image
 
-  // To store profilePicture from database
-  const [profile, setProfile] = useState(null);
 
   // State to track if a new image has been selected
-  const [isNewImageSelected, setIsNewImageSelected] = useState(false);
+const [isNewImageSelected, setIsNewImageSelected] = useState(false);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [friendRequests, setFriendRequests] = useState([]);
   const [loading, setLoading] = useState(false) ;
 
+  const [userMetadata, setUserMetadata] = useState(null);
+  console.log(userMetadata , "user data")
+
+  useEffect(() => {
+    console.log("getUserMetadata function called")
+    getUserMetadata()
+  
+  }, [getAccessTokenSilently, user?.sub]);
+
+  const getUserMetadata = async () => {
+    const domain = "dev-8c0es5gx0fgv2mbe.us.auth0.com";
+
+    try {
+      const accessToken = await getAccessTokenSilently({
+        authorizationParams: {
+          audience: `https://${domain}/api/v2/`,
+          scope: "read:current_user",
+        },
+       
+      });
+      console.log('Access Token:', accessToken);
+      const userDetailsByIdUrl = `https://${domain}/api/v2/users/${user.sub}`;
+
+      const metadataResponse = await fetch(userDetailsByIdUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const { user_metadata } = await metadataResponse.json();
+      console.log(user_metadata)
+      setUserMetadata(user_metadata);
+    } catch (e) {
+      console.log(e.message);
+    }
+  };
   //image upload
   const handleImageUpload = (file) => {
-    alert("on profile pic click is triggered")
+    isNewImageSelected(true) ;
+    const reader = new FileReader() ;
+      reader.onload = (e) => {
+        setProfilePicture(e.target.result)
+      }
+      reader.readAsDataURL(file)
   };
 
   const StyledToolbar = styled(Toolbar)({
