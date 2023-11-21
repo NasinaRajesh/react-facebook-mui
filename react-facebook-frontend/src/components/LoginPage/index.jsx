@@ -131,13 +131,17 @@ function LoginPage() {
 
   
   if(isAuthenticated){
-    console.log(user)
+    console.log(user.email_verified)
     
     dispatch(getAuth0LoggedUser(user))
     localStorage.setItem("auth0user", JSON.stringify(user))
      //return <LoggedUerProfile auth0User={user}/>
-
-     navigatesTo("/authdash") 
+    if(!user.email_verified){
+      navigatesTo("/create-auth0-account")
+    } else{
+      navigatesTo("/authdash")
+    }
+      
    }
    if(isLoading){
     return(

@@ -140,8 +140,6 @@ function Navbar({ onPostAdded }) {
   const onLogout = () => {
     localStorage.clear();
     dispatch(logOutUser());
-    //setToken(null);
-    //setUserState({});
     navigatesTo("/");
   };
 

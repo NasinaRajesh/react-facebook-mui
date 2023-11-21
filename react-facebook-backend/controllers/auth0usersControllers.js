@@ -1,3 +1,4 @@
+const { validationResult } = require("express-validator");
 const mongoose = require("mongoose") ;
 const FacebookModel = require('../model/facebook') ;
 
@@ -222,6 +223,36 @@ const RejectRequest = async (req, res) => {
       console.error('Error updating post content:', error);
       res.status(500).json({ error: 'Internal server error.' });
     }
-  };
 
-  module.exports = {FriendRequests, RejectRequest, AcceptRequest, createPost, getPosts, deletePost, getPost, updatePostContent}
+    
+  };
+  const createAccount = async (req, res) => {
+    // Check for validation errors from express-validator library
+
+    console.log(req.body, "auth0 creating account details")
+
+    const { firstName, lastName, email} = req.body;
+    try {
+      // Check if user already exists
+      let user = await FacebookModel.findOne({ email });
+
+      if (user) {
+        return res.status(400).json({ msg: "User already exists" });
+      }
+
+      // Create a new user
+      user = await FacebookModel.create({
+        firstName,
+        lastName,
+        email,
+      
+      });
+      await user.save()
+      res.status(200).json({ message: 'Auth0 account created successfully.' });
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server Error");
+    }
+  }
+
+  module.exports = {FriendRequests, RejectRequest, AcceptRequest, createPost, getPosts, deletePost, getPost, updatePostContent, createAccount}

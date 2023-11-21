@@ -23,11 +23,12 @@ import AuthAddPost from "./components/Auth0/AuthAddPost";
 
 import { useAuth0 } from "@auth0/auth0-react";
 import Friends from "./components/Auth0/Sidebar/Friends";
+import CreateAccount from "./components/Auth0/CreateAccount";
 
 function App() {
 
   const selector = useSelector((state) => state.LoggedUser.user);
-  console.log(selector);
+  
   const [mode, setMode] = useState("light");
   const [postAdded, setPostAdded] = useState(false); // Add a flag to trigger Feed component update
 
@@ -113,6 +114,7 @@ function App() {
           <Route path="*" element={<NoPage />}></Route>
           <Route path="/signup" element={<RegistrationPage />}></Route>
           <Route path="/authdash" element={<AuthDashboard />}></Route>
+          <Route path="/create-auth0-account" element={<CreateAccount/>}></Route>
         </Routes>
       </ThemeProvider>
     </BrowserRouter>
