@@ -25,6 +25,7 @@ import { useDispatch } from "react-redux";
 // reducers
 import { logOutUser } from "../UserStateSlice";
 import { updateProfilePicture } from "../UserStateSlice";
+import CustomSnackbar from "../CustomSnackbar";
 
 function Navbar({ onPostAdded }) {
   const dispatch = useDispatch();
@@ -45,7 +46,9 @@ function Navbar({ onPostAdded }) {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [friendRequests, setFriendRequests] = useState([]);
-
+  const [snackbarOpen, setSnackbarOpen] = useState(false) ;
+  const [snackbarSeverity, setSnackbarSeverity] = useState("") ;
+  const [snackbarMessage, setSnackbarMessage] = useState("") ;
   //image upload
   const handleImageUpload = (file) => {
     setIsNewImageSelected(true); // Set to true when a new image is selected
@@ -164,7 +167,7 @@ function Navbar({ onPostAdded }) {
   },[selector.user.id])
   
   const handleFriendRequests = (userId) => {
-    console.log("handleFriendRequest called")
+   
     // setIsDrawerOpen(true)
     axios
       .get(`${urls.getFriends}/${userId}`)
@@ -174,7 +177,22 @@ function Navbar({ onPostAdded }) {
   const handleRejectRequest = (request) => {
     const userId = selector.user.id 
     //console.log(request, selector.user.id)
-    axios.delete(`${urls.rejectFriendRequest}?userId=${userId}&requestId=${request.userId}`).then(res=>handleFriendRequests(userId)).catch(error=>console.log(error))
+    axios.delete(`${urls.rejectFriendRequest}?userId=${userId}&requestId=${request.userId}`)
+    .then(res=>{
+      console.log("reject req", res) ;
+      setSnackbarSeverity("error") ;
+      setSnackbarMessage(res.data.message);
+      setSnackbarOpen(true)
+      setTimeout(()=>{
+        handleFriendRequests(userId)
+      },3000)
+    })
+    .catch(error=>{
+      console.log(error)
+      setSnackbarSeverity("error") ;
+      setSnackbarMessage(error.response.data.error) ;
+      setSnackbarOpen(true)
+    })
   } 
   const handleAcceptRequest = (requestUser) => {
     //console.log(requestUser)
@@ -185,9 +203,27 @@ function Navbar({ onPostAdded }) {
     })
     .then((res)=> {
       console.log(res)
-      handleFriendRequests(userId)
+      setTimeout(()=> {
+        handleFriendRequests(userId)
+      },1000)
+      setSnackbarSeverity("success") ;
+      setSnackbarMessage(res.data.message) ;
+      setSnackbarOpen(true) ;
+      
     })
-    .catch((error) => console.log(error))
+    .catch((error) =>{ 
+      console.log(error)
+      setSnackbarSeverity("error") ;
+      setSnackbarMessage(error.response.data.error) ;
+      setSnackbarOpen(true)
+    })
+  }
+  const handleSnackbarClose = (event, reason)=> {
+    if(reason === "clickaway"){
+       return
+      } 
+      setSnackbarOpen(false) ;
+          
   }
   return (
     <AppBar position="sticky">
@@ -340,6 +376,12 @@ function Navbar({ onPostAdded }) {
           Delete account
         </MenuItem>
       </Menu>
+      <CustomSnackbar
+        open={snackbarOpen}
+        onClose={handleSnackbarClose}
+        severity={snackbarSeverity} 
+        message={snackbarMessage}
+      />
     </AppBar>
   );
 }

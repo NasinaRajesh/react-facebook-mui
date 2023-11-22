@@ -120,7 +120,7 @@ const accountLogin = async (req, res) => {
 
       if (!isMatch) {
         return res.status(400).json({ msg: "Invalid credentials" });
-      }
+      } 
 
       // Create and return a JWT token
       const payload = {
@@ -152,8 +152,8 @@ const createPost = async (req, res) => {
     //console.log(req.body, userId, "create-post");
     // Check if the content and imageUrl exist
     try {
-      if (!postcontent || !postimageUrl) {
-        return res.status(400).json({ error: 'Both content and imageUrl are required.' });
+      if (!postcontent ) {
+        return res.status(400).json({ error: 'Post content required.' });
       }
 
       // Find the user based on the provided userId
@@ -403,7 +403,7 @@ const getProfilePicture = async (req, res) => {
     friend.friendRequests.push(friendDetails);
     await friend.save();
 
-    return res.status(200).json({ message: 'Friend added successfully' });
+    return res.status(200).json({ message: 'Add Friend Request sent' });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Error adding friend' });

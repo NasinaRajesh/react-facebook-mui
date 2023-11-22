@@ -18,6 +18,8 @@ import {
 } from "@mui/material";
 import { Favorite, FavoriteBorder, MoreVert, Share } from "@mui/icons-material";
 import { useSelector } from "react-redux";
+import MuiConfirmModal from "../MuiConfirmModal";
+import CustomSnackbar from "../CustomSnackbar";
   function Feed({  postAdded, onPostAdded, setOnEditClick,  setSelectedPost}) {
 
     const selector = useSelector((state)=> state.LoggedUser.user) ; 
@@ -27,7 +29,12 @@ import { useSelector } from "react-redux";
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenuCardId, setOpenMenuCardId] = useState(null);
   const [deletingPost , setDeletingPost] = useState(false) ; 
-  //console.log(deletingPost)
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false) ;
+  const [postIdToDelete, setPostIdToDelete] = useState(null);
+  
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarSeverity, setSnackbarSeverity] = useState("");
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const fetchAllUserFeeds = () => {
     console.log("fetchAllUserFeeds are called")
@@ -66,23 +73,39 @@ import { useSelector } from "react-redux";
     return date.toLocaleDateString("en-US", options);
   };
 
-
+  const handleCancelDelete = () => {
+    setPostIdToDelete(null);
+    setConfirmModalOpen(false);
+  };
   const handleDeleteClick = (postId) => {
-    const check  = window.confirm("Are you sure you want to delete")
-    console.log(check)
-    if (selector && postId && check) {
-      setDeletingPost(true)
+    setPostIdToDelete(postId);
+    setConfirmModalOpen(true);
+  };
+  const handleConfirmDelete = () => {
+    
+    if (selector && postIdToDelete ) {
+      
       axios
         .delete(
-          `${urls.deletepost}?userId=${selector.user.id}&postId=${postId}`
+          `${urls.deletepost}?userId=${selector.user.id}&postId=${postIdToDelete}`
         )
         .then((res) => {
           console.log(res);
           fetchAllUserFeeds() ;
-          
+          setSnackbarSeverity("success") ;
+          setSnackbarMessage(res.data.message) ;
+          setSnackbarOpen(true) ;
         })
-        .catch((err) => console.log(err))
-        .finally((res)=>setDeletingPost(false))
+        .catch((err) => {
+          console.log(err) ;
+          setSnackbarSeverity("error") ;
+          setSnackbarMessage(err.data.message) ;
+          setSnackbarOpen(true) ;
+        })
+        .finally((res)=>{
+          setPostIdToDelete(null)
+          setConfirmModalOpen(false)
+        })
     }
   };
 
@@ -119,17 +142,16 @@ import { useSelector } from "react-redux";
     setOpenMenuCardId(null);
     setAnchorEl(null);
   };
-
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
   return (
     <Box flex={3} p={2} >
       <Box >
-        <Box>
-        {
-          deletingPost && (
-            <Typography variant="body2" color="error" sx={{textAlign:'center'}}>Deleting the post...</Typography>
-          )
-        }
-        </Box>
+      
         {isLoading ? (
          <Typography variant="body1" sx={{ textAlign: "center", py: 2 }}>
           <CircularProgress />
@@ -175,7 +197,7 @@ import { useSelector } from "react-redux";
                   <CardMedia
                     component="img"
                     src={feed.postimageUrl}
-                    alt="Paella dish"
+                    alt=""
                     style={{
                       objectFit: "cover",
                       width: "100%",
@@ -231,9 +253,18 @@ import { useSelector } from "react-redux";
               </Box>
             ))
         )}
-
-      
      </Box>
+     <MuiConfirmModal
+        open={confirmModalOpen}
+        handleClose={handleCancelDelete}
+        handleConfirm={handleConfirmDelete}
+      />
+      <CustomSnackbar
+        open={snackbarOpen}
+        onClose={handleSnackbarClose}
+        severity={snackbarSeverity}
+        message={snackbarMessage}
+      />
     </Box>
   );
 }

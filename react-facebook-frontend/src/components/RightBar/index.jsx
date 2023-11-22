@@ -19,6 +19,7 @@ import "./index.css";
 import AddFriendButton from "../AddFriendButton/AddFriendButton";
 import CloseIcon from "@mui/icons-material/Close";
 import { useSelector } from "react-redux";
+import CustomSnackbar from "../CustomSnackbar";
 function RightBar({ userState }) {
   const selector = useSelector((state) => state.LoggedUser.user);
   const profilePicture = useSelector(
@@ -33,12 +34,9 @@ function RightBar({ userState }) {
   const [modalOpen, setModalOpen] = useState(false);
 
   const [requestSent, setRequestSent] = useState(false);
-
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-
-  const [successAlert, setSuccessAlert] = useState(false);
-  const [errorAlert, setErrorAlert] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false) ;
+  const [snackbarSeverity, setSnackbarSeverity] = useState("") ;
+  const [snackbarMessage, setSnackbarMessage] = useState("") ;
   const FetchUserPostDetails = () => {
     axios
       .get(`${urls.getposts}/${userId}`)
@@ -63,9 +61,7 @@ function RightBar({ userState }) {
   };
 
   useEffect(() => {
-    console.log("useEffect called in RightBar component without selector");
     if (selector) {
-      console.log("useEffect called in RightBar component with selector");
       FetchUserPostDetails();
       FetchAllUsers();
     }
@@ -79,11 +75,16 @@ function RightBar({ userState }) {
     setSelectedImage(null);
     setModalOpen(false);
   };
-
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
   const handleAddFriendClick = (friend) => {
     // setAllUsers((prevUsers) => prevUsers.filter((u) => u._id !== user._id));
     //console.log(selector.user.profilePicture);
-    toggleAddFriendButtonText(friend._id);
+    //toggleAddFriendButtonText(friend._id); 
     axios
       .post(`${urls.addFriend}?userId=${userId}&friendId=${friend._id}`, {
         username: selector.user.username,
@@ -91,21 +92,15 @@ function RightBar({ userState }) {
       })
       .then((res) => {
         console.log(res);
-        
-        // setSuccessAlert(true);
-        // setTimeout(() => {
-        //   setSuccessAlert(false);
-        // }, 1500);
-        //setSnackbarOpen(true)
+        setSnackbarSeverity("success") ;
+        setSnackbarMessage(res.data.message) ;
+        setSnackbarOpen(true)
       })
       .catch((error) => {
         console.log(error.response.data.message);
-        // setErrorAlert(true);
-        // setTimeout(() => {
-        //   setErrorAlert(false);
-        // }, 1500);
-        //setSnackbarOpen(true);
-        setSnackbarMessage(error.response.data.message);
+        setSnackbarSeverity("error") ;
+        setSnackbarMessage(error.response.data.message) ;
+        setSnackbarOpen(true)
       });
   };
 
@@ -121,30 +116,11 @@ function RightBar({ userState }) {
       .catch((error) => console.log(error));
   };
 
-  const handleClose = () => {
-    setSnackbarOpen(false);
-  };
+  
 
   return (
     <Box flex={2} p={2} sx={{ display: { xs: "none", sm: "block" } }}>
       <Box position="static" sx={{ width: "300px" }}>
-        {/* {successAlert && <Alert severity="success">Request sent!</Alert>}
-        {errorAlert && <Alert severity="error">Request already sent!</Alert>} */}
-        {snackbarOpen && (
-          <Snackbar
-            open={snackbarOpen}
-            autoHideDuration={3000}
-            onClose={handleClose}
-          >
-            <Alert
-              onClose={handleClose}
-              severity="error"
-              sx={{ width: "100%" }}
-            >
-              {snackbarMessage}
-            </Alert>
-          </Snackbar>
-        )}
         <Typography component="h6" mt={2} mb={2}>
           Friends suggestions
         </Typography>
@@ -282,6 +258,12 @@ function RightBar({ userState }) {
           </div>
         )}
       </Box>
+      <CustomSnackbar
+        open={snackbarOpen}
+        severity={snackbarSeverity}
+        message={snackbarMessage}
+        onClose={handleSnackbarClose}
+      />
     </Box>
   );
 }
