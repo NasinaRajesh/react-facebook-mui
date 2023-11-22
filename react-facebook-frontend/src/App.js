@@ -49,7 +49,7 @@ function App() {
 
   });
 
-  function MainPage() {
+  function UserDashboard() {
     return (
       <Box bgcolor={"background.default"} color={"text.primary"} >
         <Navbar onPostAdded={() => setPostAdded(!postAdded)} />
@@ -100,8 +100,7 @@ function App() {
       </Box>
     )
   }
-
-
+  
   return (
     <BrowserRouter>
       <ThemeProvider theme={darkTheme}>
@@ -109,7 +108,7 @@ function App() {
           <Route path="/" element={<LoginPage />}></Route>
           <Route
             path="/dash"
-            element={selector ? <MainPage /> : <Navigate to="/" />}
+            element={selector.user ? <UserDashboard /> : <Navigate to="/" />}
           ></Route>
           <Route path="*" element={<NoPage />}></Route>
           <Route path="/signup" element={<RegistrationPage />}></Route>

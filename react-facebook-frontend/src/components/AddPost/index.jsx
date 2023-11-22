@@ -26,6 +26,7 @@ import {
 import EmojiPicker from "emoji-picker-react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import CustomSnackbar from "../CustomSnackbar";
 const StyledModal = styled(Modal)({
   display: "flex",
   justifyContent: "center",
@@ -68,8 +69,12 @@ function AddPost({
   const [selectedImage, setSelectedImage] = useState(null);
   const [postimageUrl, setPostImageUrl] = useState(null); // State to store the URL of the selected image
   const [loading, setLoading] = useState(false);
-  //console.log(selectedImage, "addpost")
-  // Function to handle emoji selection
+  
+  const [snackbarOpen, setSnackbarOpen] = useState(false) ;
+  const [snackbarSeverity, setSnackbarSeverity] = useState("") ;
+  const [snackbarMessage, setSnackbarMessage] = useState("")
+  
+  
   const handleEmojiSelect = (emoji) => {
     console.log("Selected Emoji:", emoji);
     setSelectedEmoji(emoji);
@@ -87,6 +92,71 @@ function AddPost({
     reader.readAsDataURL(file);
   };
 
+  const createPost = (postDetails) => {
+    const userId = selector.user.id;
+    axios
+    .post(`${urls.createpost}/` + userId, postDetails, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then((res) => {
+      console.log("Post successfully created!");
+      console.log("Response data:", res);
+      setSnackbarSeverity("success") ;
+      setSnackbarMessage(res.data.message) ;
+      setSnackbarOpen(true);
+      setOpen(false);
+      setTimeout(()=>{
+        setOnEditClick(false);
+        onPostAdded();
+      },1000)
+      
+      
+      //navigate("/", { replace: true });
+    })
+    .catch((error) => {
+      console.log(error, "error msg");
+      setErrorMessage(error.response.data.error);
+      setSnackbarSeverity("error") ;
+      setSnackbarMessage(error.response.data.error);
+      setSnackbarOpen(true)
+    })
+    .finally(() => {
+      setLoading(false) ;
+    });
+  }
+const updatePost = (postDetails) => {
+  const postId = selectedPost.data._id;
+      axios
+        .patch(
+          `${urls.updatePostContent}?userId=${selector.user.id}&postId=${postId}`,
+          { postDetails: postDetails }
+        )
+        .then((res) => {
+          console.log("Post successfully updated!");
+          console.log("updated Response data:", res);
+          setSnackbarSeverity("success") ;
+          setSnackbarMessage(res.data.message) ;
+          setSnackbarOpen(true) ; 
+          setTimeout(()=>{
+            setOnEditClick(false);
+            // Trigger the onPostAdded callback to update Feed component
+            onPostAdded();
+            //navigate("/", { replace: true });
+            setSelectedPost([]);
+          },1000)
+          
+        })
+        .catch((error) => {
+          console.log(error, "error msg");
+          setErrorMessage(error.response.data.error);
+          setSnackbarSeverity("error") ;
+          setSnackbarMessage(error.response.data.error) ;
+          setSnackbarOpen(true)
+        })
+        .finally(() => setLoading(false));
+}
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -101,54 +171,23 @@ function AddPost({
       postimageUrl: postimageUrl && postimageUrl,
     };
     console.log(postDetails);
-    const userId = selector.user.id;
+    
     setLoading(true);
 
     if (selectedPost.length == 0) {
-      axios
-        .post(`${urls.createpost}/` + userId, postDetails, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-        .then((res) => {
-          console.log("Post successfully created!");
-          console.log("Response data:", res);
-          setOpen(false);
-          setOnEditClick(false);
-          onPostAdded();
-          //navigate("/", { replace: true });
-        })
-        .catch((error) => {
-          console.log(error, "error msg");
-          setErrorMessage(error.response.data.error);
-        })
-        .finally(() => setLoading(false));
+      createPost(postDetails)
+      
     } else {
-      const postId = selectedPost.data._id;
-      axios
-        .patch(
-          `${urls.updatePostContent}?userId=${selector.user.id}&postId=${postId}`,
-          { postDetails: postDetails }
-        )
-        .then((res) => {
-          console.log("Post successfully updated!");
-          console.log("updated Response data:", res);
-
-          setOnEditClick(false);
-          // Trigger the onPostAdded callback to update Feed component
-          onPostAdded();
-          //navigate("/", { replace: true });
-          setSelectedPost([]);
-        })
-        .catch((error) => {
-          console.log(error, "error msg");
-          setErrorMessage(error.response.data.error);
-        })
-        .finally(() => setLoading(false));
+      updatePost(postDetails)
     }
   };
-  const defaultProfilePicture = 'https://example.com/default-profile-picture.jpg' ;
+   const defaultProfilePicture = 'https://example.com/default-profile-picture.jpg' ;
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
   return (
     <>
       <Tooltip
@@ -287,6 +326,12 @@ function AddPost({
           </Typography>
         </Box>
       </StyledModal>
+      <CustomSnackbar
+         open={snackbarOpen}
+         onClose={handleSnackbarClose} 
+         severity={snackbarSeverity} 
+         message={snackbarMessage}
+      />
     </>
   );
 }
