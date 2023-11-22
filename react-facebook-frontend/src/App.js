@@ -30,8 +30,8 @@ function App() {
   const selector = useSelector((state) => state.LoggedUser.user);
   
   const [mode, setMode] = useState("light");
-  const [postAdded, setPostAdded] = useState(false); // Add a flag to trigger Feed component update
-
+  const [postAdded, setPostAdded] = useState(false); //  to trigger Feed component when created post
+ const [postDeleted, setPostDeleted] = useState(false) ; // to trigger getPosts in Rightbar when delete post in Feed
   const [onEditClick, setOnEditClick] = useState(false); // To trigger  Tooltip componet in AddPost.jsx
 
   const [selectedPost, setSelectedPost] = useState([]); // To get selected post in EDit click Feed.jsx
@@ -61,9 +61,10 @@ function App() {
             onPostAdded={() => setPostAdded(!postAdded)}
             setOnEditClick={setOnEditClick}
             setSelectedPost={setSelectedPost}
+            onPostDeleted={() => setPostDeleted(!postDeleted)}
           />
 
-          <RightBar />
+          <RightBar  postDeleted={postDeleted}/> 
         </Stack>
         <AddPost
           onPostAdded={() => setPostAdded(!postAdded)}

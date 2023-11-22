@@ -20,7 +20,7 @@ import AddFriendButton from "../AddFriendButton/AddFriendButton";
 import CloseIcon from "@mui/icons-material/Close";
 import { useSelector } from "react-redux";
 import CustomSnackbar from "../CustomSnackbar";
-function RightBar({ userState }) {
+function RightBar({ postDeleted }) {
   const selector = useSelector((state) => state.LoggedUser.user);
   const profilePicture = useSelector(
     (state) => state.LoggedUser.user.profilePicture
@@ -34,9 +34,9 @@ function RightBar({ userState }) {
   const [modalOpen, setModalOpen] = useState(false);
 
   const [requestSent, setRequestSent] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false) ;
-  const [snackbarSeverity, setSnackbarSeverity] = useState("") ;
-  const [snackbarMessage, setSnackbarMessage] = useState("") ;
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarSeverity, setSnackbarSeverity] = useState("");
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   const FetchUserPostDetails = () => {
     axios
       .get(`${urls.getposts}/${userId}`)
@@ -54,7 +54,6 @@ function RightBar({ userState }) {
       .then((res) => {
         console.log(res.data);
         const filteredUsers = res.data.filter((user) => user._id !== userId);
-
         setAllUsers(filteredUsers);
       })
       .catch((err) => console.log(err));
@@ -65,7 +64,7 @@ function RightBar({ userState }) {
       FetchUserPostDetails();
       FetchAllUsers();
     }
-  }, [userId, selector, requestSent]);
+  }, [userId, selector, requestSent, postDeleted]);
 
   const handleImageClick = (postId) => {
     setSelectedImage(postId);
@@ -84,7 +83,7 @@ function RightBar({ userState }) {
   const handleAddFriendClick = (friend) => {
     // setAllUsers((prevUsers) => prevUsers.filter((u) => u._id !== user._id));
     //console.log(selector.user.profilePicture);
-    //toggleAddFriendButtonText(friend._id); 
+    //toggleAddFriendButtonText(friend._id);
     axios
       .post(`${urls.addFriend}?userId=${userId}&friendId=${friend._id}`, {
         username: selector.user.username,
@@ -92,15 +91,15 @@ function RightBar({ userState }) {
       })
       .then((res) => {
         console.log(res);
-        setSnackbarSeverity("success") ;
-        setSnackbarMessage(res.data.message) ;
-        setSnackbarOpen(true)
+        setSnackbarSeverity("success");
+        setSnackbarMessage(res.data.message);
+        setSnackbarOpen(true);
       })
       .catch((error) => {
         console.log(error.response.data.message);
-        setSnackbarSeverity("error") ;
-        setSnackbarMessage(error.response.data.message) ;
-        setSnackbarOpen(true)
+        setSnackbarSeverity("error");
+        setSnackbarMessage(error.response.data.message);
+        setSnackbarOpen(true);
       });
   };
 
@@ -115,8 +114,6 @@ function RightBar({ userState }) {
       })
       .catch((error) => console.log(error));
   };
-
-  
 
   return (
     <Box flex={2} p={2} sx={{ display: { xs: "none", sm: "block" } }}>
@@ -133,66 +130,61 @@ function RightBar({ userState }) {
             {allUsers
               .slice()
               .reverse()
-              .map(
-                (user, index) => (
-                  console.log(user.addFriend),
-                  (
-                    <Card
-                      key={user._id}
-                      sx={{ width: 300, height: 130, marginBottom: 1 }}
+              .map((user, index) => (
+                <Card
+                  key={user._id}
+                  sx={{ width: 300, height: 130, marginBottom: 1 }}
+                >
+                  <CardContent>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
                     >
-                      <CardContent>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              display: "flex",
-                              flexDirection: "row",
-                              alignItems: "center",
-                            }}
-                          >
-                            <Avatar
-                              src={user.profilePicture}
-                              alt="User Avatar"
-                              sx={{ width: 60, height: 60, marginRight: 1 }}
-                            />
-                            <Typography variant="h6" component="div">
-                              {`${user.firstName} ${
-                                user.lastName ? user.lastName : ""
-                              }`}
-                            </Typography>
-                          </Box>
-                          <Box mt={1}>
-                            {/* <AddFriendButton
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "row",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Avatar
+                          src={user.profilePicture}
+                          alt="User Avatar"
+                          sx={{ width: 60, height: 60, marginRight: 1 }}
+                        />
+                        <Typography variant="h6" component="div">
+                          {`${user.firstName} ${
+                            user.lastName ? user.lastName : ""
+                          }`}
+                        </Typography>
+                      </Box>
+                      <Box mt={1}>
+                        {/* <AddFriendButton
                           onClick={() => handleAddFriendClick(user)}
                           requestSent={requestSent}
                         /> */}
-                            {user.addFriend ? (
-                              <AddFriendButton
-                                onClick={() => handleAddFriendClick(user)}
-                                requestSent={requestSent}
-                                buttonText="Requested"
-                              />
-                            ) : (
-                              <AddFriendButton
-                                onClick={() => handleAddFriendClick(user)}
-                                requestSent={requestSent}
-                                buttonText="Add Friend"
-                              />
-                            )}
-                          </Box>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  )
-                )
-              )}
+                        {user.addFriend ? (
+                          <AddFriendButton
+                            onClick={() => handleAddFriendClick(user)}
+                            requestSent={requestSent}
+                            buttonText="Requested"
+                          />
+                        ) : (
+                          <AddFriendButton
+                            onClick={() => handleAddFriendClick(user)}
+                            requestSent={requestSent}
+                            buttonText="Add Friend"
+                          />
+                        )}
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+              ))}
             <Box>
               {allUsers.length <= 0 && (
                 <Typography variant="body2" sx={{ textAlign: "center" }}>
@@ -216,15 +208,20 @@ function RightBar({ userState }) {
             {userPosts
               .slice()
               .reverse()
-              .map((post, index) => (
-                <ImageListItem key={index} style={{ cursor: "pointer" }}>
-                  <img
-                    src={post.postimageUrl}
-                    alt=""
-                    onClick={() => handleImageClick(post.postimageUrl)}
-                  />
-                </ImageListItem>
-              ))}
+              .map(
+                (post, index) =>
+                  post.postimageUrl && (
+                    <Box key={post._id}>
+                      <ImageListItem style={{ cursor: "pointer" }}>
+                        <img
+                          src={post.postimageUrl}
+                          alt=""
+                          onClick={() => handleImageClick(post.postimageUrl)}
+                        />
+                      </ImageListItem>
+                    </Box>
+                  )
+              )}
           </ImageList>
         )}
 
