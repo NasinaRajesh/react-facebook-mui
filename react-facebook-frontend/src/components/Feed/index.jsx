@@ -20,7 +20,7 @@ import { Favorite, FavoriteBorder, MoreVert, Share } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import MuiConfirmModal from "../MuiConfirmModal";
 import CustomSnackbar from "../CustomSnackbar";
-  function Feed({  postAdded, onPostAdded, setOnEditClick,  setSelectedPost}) {
+  function Feed({  postAdded, onPostDeleted, setOnEditClick,  setSelectedPost}) {
 
     const selector = useSelector((state)=> state.LoggedUser.user) ; 
     //console.log(selector.user.username, selector.user.id, "redux")
@@ -95,6 +95,7 @@ import CustomSnackbar from "../CustomSnackbar";
           setSnackbarSeverity("success") ;
           setSnackbarMessage(res.data.message) ;
           setSnackbarOpen(true) ;
+          onPostDeleted() ;
         })
         .catch((err) => {
           console.log(err) ;

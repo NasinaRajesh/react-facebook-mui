@@ -146,44 +146,46 @@ const accountLogin = async (req, res) => {
     }
   }
 
-const createPost = async (req, res) => {
+  const createPost = async (req, res) => {
     const { postcontent, postimageUrl } = req.body;
-    const userId = req.params.id; // Get userId from URL parameter
-    //console.log(req.body, userId, "create-post");
-    // Check if the content and imageUrl exist
+    const userId = req.params.id;
+     console.log(postimageUrl)
     try {
-      if (!postcontent ) {
+      if (!postcontent) {
         return res.status(400).json({ error: 'Post content required.' });
       }
-
-      // Find the user based on the provided userId
+  
       const user = await FacebookModel.findById(userId);
-
+  
       if (!user) {
         return res.status(404).json({ error: 'User not found.' });
       }
-      if(user.postcontent === postcontent ){
-        return res.status(404).json({error: "Post already exists"}) ;
+  
+      // Check if post with the same content already exists
+      if (user.posts.some(post => post.postcontent === postcontent)) {
+        return res.status(400).json({ error: 'Post with the same content already exists.' });
       }
-      console.log(user);
+  
       // Create a new post object
       const newPost = {
         postcontent,
-        postimageUrl,
+        postimageUrl: postimageUrl || null, // Set postimageUrl to null if it's empty
       };
-
-      // Add the new post to the user's posts array
+  
+      // Add the new post to the user's posts array 
+      console.log(newPost)
       user.posts.push(newPost);
-
+  
       // Save the updated user document
       await user.save();
-
+  
       res.status(201).json({ message: 'Post created successfully.' });
     } catch (error) {
       console.error('Error creating post:', error);
       res.status(500).json({ error: 'Internal server error.' });
     }
   };
+  
 // To get all posts 
   const getPosts =  async (req, res) => {
     const userId = req.params.id;

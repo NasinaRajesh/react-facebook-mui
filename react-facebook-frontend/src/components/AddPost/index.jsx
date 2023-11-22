@@ -170,7 +170,7 @@ const updatePost = (postDetails) => {
       postcontent: postContent,
       postimageUrl: postimageUrl && postimageUrl,
     };
-    console.log(postDetails);
+    console.log(postDetails.postimageUrl);
     
     setLoading(true);
 
