@@ -116,7 +116,7 @@ const accountLogin = async (req, res) => {
       // console.log(password, "login password");
       // console.log(user.password, " db password");
 
-      const isMatch = await bcrypt.compare(password, user.password);
+      const isMatch = bcrypt.compare(password, user.password);
 
       if (!isMatch) {
         return res.status(400).json({ msg: "Invalid credentials" });
@@ -343,17 +343,160 @@ const getProfilePicture = async (req, res) => {
   };
   
 
-  // const getAllUsersDetails = async (req, res) => {
-  //   try {
-  //     const users = await FacebookModel.find({}, 'firstName lastName email profilePicture');
-  //     // Send the retrieved user data as a response
-  //     res.status(200).json(users);
-  //   } catch (error) {
-  //     console.error(error);
-  //     // Handle the error
-  //     res.status(500).json({ error: 'Internal server error' });
-  //   }
-  // };
+  const getAllUsers = async (req, res) => {
+    try {
+      const users = await FacebookModel.find({}, 'firstName lastName email profilePicture');
+      // Send the retrieved user data as a response
+      res.status(200).json(users);
+    } catch (error) {
+      console.error(error);
+      // Handle the error
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+  const deleteAccount = async (req, res) => {
+    try {
+      const userId = req.params.userId;
+  
+      // Find the user by their ID and delete it
+      const deletedUser = await FacebookModel.findByIdAndDelete(userId);
+  
+      if (!deletedUser) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      // Optionally, you can perform additional cleanup tasks here
+      // (e.g., delete user-related data, revoke tokens, etc.)
+  
+      res.status(200).json({ message: 'User deleted successfully' });
+    } catch (error) {
+      console.error(error);
+      // Handle the error
+      res.status(500).json({ error: 'Internal server error' });
+    }}
+ const addFriend =  async (req, res) => {
+  try {
+    const { userId, friendId } = req.query; // Assuming you send the user and friend IDs in the request body
+    const {username, profilePicture} = req.body ;
+    const user = await FacebookModel.findById(userId); // Find the user who wants to add a friend
+    const friend = await FacebookModel.findById(friendId); // Find the friend
+    const email = user.email ;
+    if (!user || !friend) {
+      return res.status(404).json({ message: 'User or friend not found' });
+    }
 
+     // Check if the friendRequest is already in the user's friendRequest array
+     const isFriendRequestAlreadyAdded = friend.friendRequests.some((friendDetails) => friendDetails.username.toLowerCase().trim() === username.toLowerCase().trim());
 
-module.exports = {updateprofile , createAccount, accountLogin, createPost, getPosts, getPost, getProfilePicture, deletePost , updatePostContent} 
+     if (isFriendRequestAlreadyAdded) {
+       return res.status(400).json({ message: 'Friend request already sent' });
+     }
+
+    // Add the friend to the user's `friends` array
+    const friendDetails = {
+      userId,
+      username,
+      profilePicture,
+      email
+    }
+    //console.log(friendDetails)
+    friend.friendRequests.push(friendDetails);
+    await friend.save();
+
+    return res.status(200).json({ message: 'Friend added successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error adding friend' });
+  }
+}
+
+const friendRequests = async (req, res) => {
+  try {
+    const userId = req.params.userId; // Get the user ID from the request parameters
+
+    const user = await FacebookModel.findById(userId); // Populate the 'friends' field
+    // console.log(user)
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const friendRequests = user.friendRequests; // Extract the list of friends
+    //console.log(friendRequests, "get-friends")
+    return res.status(200).json({ friendRequests });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error getting friends' });
+  }
+}
+
+const rejectFriendRequest = async (req, res) => {
+  //const requestId = parseInt(req.params.id);
+  try{
+  const {userId, requestId} = req.query 
+  //console.log(userId, requestId)
+  const user =  await FacebookModel.findById(userId) ;
+  // Find the index of the request with the provided ID
+  const index = user.friendRequests.findIndex((request) => request.userId == requestId);
+  console.log(index)
+  if (index === -1) {
+    return res.status(404).json({ message: 'Friend request not found' });
+  }
+
+  // Remove the request from the array
+  user.friendRequests.splice(index, 1);
+  await user.save()
+  //console.log(user.friendRequests, "friendRequests array")
+  return res.json({ message: 'Friend request rejected' });
+}catch(error){
+  console.error(error);
+    return res.status(500).json({ message: 'Error Reject friend' });
+}
+}
+
+const acceptFriendRequest = async (req,res)=>{
+  const {userId, requestId} = req.query ;
+  console.log(userId, requestId)
+try{
+  const user = await FacebookModel.findById(userId) ;
+
+  if(!user){
+    return res.status(404).json({message : 'User Not Found'})
+  }
+  user.friends.push(req.body)
+  
+  const index = user.friendRequests.findIndex((request)=> request.userId == requestId) ;
+  user.friendRequests.splice(index,1) ;
+  await user.save()
+  console.log(user.friends, "accept friend")
+  console.log(user.friendRequests, "friend requests")
+  return res.status(200).json({message: 'Friend request accepted'})
+  
+} catch(error){
+  console.log(error) ;
+  return res.status(500).json({message: 'Error while accepting friend request'})
+}
+  
+}
+
+const addFriendButtonTextChange = async (req,res)=>{
+  const userId = req.params.userId ;
+  console.log(userId)
+  try{
+    const user = await FacebookModel.findById(userId) ; 
+
+    if(!user){
+      return res.status(404).json({message : 'User not found'})
+    } 
+
+    user.addFriend = !user.addFriend ;
+    await user.save() ;
+    console.log(user.addFriend) ;
+    const addFriend = user.addFriend ;
+    return res.status(200).json({addFriend})
+
+  } catch(error) {
+    console.log(error) ;
+    return res.status(500).json({message : 'Error while updating the addFriend button text'})
+  }
+}
+module.exports = {updateprofile , createAccount, accountLogin, createPost, getPosts, getPost, getProfilePicture, deletePost , updatePostContent, getAllUsers, deleteAccount, addFriend, friendRequests, rejectFriendRequest, acceptFriendRequest, addFriendButtonTextChange} 
