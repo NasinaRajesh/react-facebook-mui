@@ -226,7 +226,7 @@ const updatePost = (postDetails) => {
           borderRadius={5}
           component="form"
           onSubmit={handleSubmit}
-          noValidate
+          noValidate 
         >
           <Typography
             variant="h6"
