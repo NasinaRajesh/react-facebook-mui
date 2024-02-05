@@ -24,7 +24,7 @@ import AuthAddPost from "./components/Auth0/AuthAddPost";
 import { useAuth0 } from "@auth0/auth0-react";
 import Friends from "./components/Auth0/Sidebar/Friends";
 import CreateAccount from "./components/Auth0/CreateAccount";
-
+import NewMessage from "./components/NewMessage";
 function App() {
 
   const selector = useSelector((state) => state.LoggedUser.user);
@@ -35,7 +35,8 @@ function App() {
   const [onEditClick, setOnEditClick] = useState(false); // To trigger  Tooltip componet in AddPost.jsx
 
   const [selectedPost, setSelectedPost] = useState([]); // To get selected post in EDit click Feed.jsx
-
+  const [acceptedRequest, setAcceptedRequest] = useState([]) ; // To trigger fetchFriends function in RightBar componentIn when  accept the request in navbar drawer
+  const [openNewmessage, setOpenNewmessage] = useState(false)
   const darkTheme = createTheme({
     palette: {
       mode: mode,
@@ -52,7 +53,7 @@ function App() {
   function UserDashboard() {
     return (
       <Box bgcolor={"background.default"} color={"text.primary"} >
-        <Navbar onPostAdded={() => setPostAdded(!postAdded)} />
+        <Navbar  onPostAdded={() => setPostAdded(!postAdded)} onFriendRequestAccecpt={()=> setAcceptedRequest(!acceptedRequest)} />
         <Stack direction="row" spacing={2} justifyContent="space-between">
           <SideBar mode={mode} setMode={setMode} />
 
@@ -64,7 +65,7 @@ function App() {
             onPostDeleted={() => setPostDeleted(!postDeleted)}
           />
 
-          <RightBar  postDeleted={postDeleted}/> 
+          <RightBar openNewmessage={openNewmessage} setOpenNewmessage={setOpenNewmessage} mode={mode}  postDeleted={postDeleted} acceptedRequest={acceptedRequest}/> 
         </Stack>
         <AddPost
           onPostAdded={() => setPostAdded(!postAdded)}
@@ -73,6 +74,7 @@ function App() {
           selectedPost={selectedPost}
           setSelectedPost={setSelectedPost}
         />
+        <NewMessage mode={mode}/>
       </Box>
     );
   }

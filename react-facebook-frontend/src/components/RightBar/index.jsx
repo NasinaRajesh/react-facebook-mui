@@ -20,7 +20,10 @@ import AddFriendButton from "../AddFriendButton/AddFriendButton";
 import CloseIcon from "@mui/icons-material/Close";
 import { useSelector } from "react-redux";
 import CustomSnackbar from "../CustomSnackbar";
-function RightBar({ postDeleted }) {
+import OnlineFriendsCard from "./OnlineFriendsCard";
+
+
+function RightBar({ postDeleted, acceptedRequest, mode, setOpenNewmessage, openNewmessage }) {
   const selector = useSelector((state) => state.LoggedUser.user);
   const profilePicture = useSelector(
     (state) => state.LoggedUser.user.profilePicture
@@ -37,6 +40,19 @@ function RightBar({ postDeleted }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState("");
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [friends, setFriends] = useState(false) ;
+
+  const fetchFriends = () => {
+    const emailId = selector.user.email ;
+    // console.log(emailId, "dfdashfbisfbsif")
+    axios.get(`${urls.getFriends}?emailId=${emailId}`)
+    .then((res)=>{
+      setFriends(res.data.userFriends)
+      console.log(res.data.userFriends)
+    })
+    .catch((error)=>console.log(error))
+  }
+
   const FetchUserPostDetails = () => {
     axios
       .get(`${urls.getposts}/${userId}`)
@@ -63,8 +79,9 @@ function RightBar({ postDeleted }) {
     if (selector) {
       FetchUserPostDetails();
       FetchAllUsers();
+      fetchFriends() ;
     }
-  }, [userId, selector, requestSent, postDeleted]);
+  }, [userId, selector, requestSent, postDeleted, acceptedRequest]);
 
   const handleImageClick = (postId) => {
     setSelectedImage(postId);
@@ -114,10 +131,18 @@ function RightBar({ postDeleted }) {
       })
       .catch((error) => console.log(error));
   };
-
   return (
     <Box flex={2} p={2} sx={{ display: { xs: "none", sm: "block" } }}>
       <Box position="static" sx={{ width: "300px" }}>
+        <Typography component="h6" mt={2} mb={2}>
+          Online friends
+        </Typography>
+        <OnlineFriendsCard
+          friends = {friends} 
+          mode = {mode} 
+          setOpenNewmessage = {setOpenNewmessage} 
+          openNewmessage = {openNewmessage}
+        />
         <Typography component="h6" mt={2} mb={2}>
           Friends suggestions
         </Typography>

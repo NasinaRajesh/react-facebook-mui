@@ -122,7 +122,12 @@ function LoginPage() {
       })
       .catch((error) => {
         console.log(error);
-        setInvalidCredentials(error.response.data.msg);
+        if(error.message === "Network Error"){
+          setInvalidCredentials('Unable to connect to the server. Please try again later.');
+        } else{
+          setInvalidCredentials(error.response.data.msg);
+        }
+        
       })
       .finally(() => {
         setLoading(false); // Set loading to false when the request is complete
@@ -131,7 +136,7 @@ function LoginPage() {
 
   
   if(isAuthenticated){
-    console.log(user.email_verified)
+    console.log(user)
     
     dispatch(getAuth0LoggedUser(user))
     localStorage.setItem("auth0user", JSON.stringify(user))

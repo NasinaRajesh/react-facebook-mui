@@ -72,6 +72,6 @@ router.post('/accept-friend-request', FacebookController.acceptFriendRequest ) ;
 
 router.patch('/add-friend-button/:userId', FacebookController.addFriendButtonTextChange ) ;
 
-
+router.get('/get-friends', FacebookController.getFriends) ; 
 
 module.exports = router;

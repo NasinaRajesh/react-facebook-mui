@@ -51,7 +51,7 @@ const updateprofile = async  (req, res) => {
     try {
       // Check if user already exists
       let user = await FacebookModel.findOne({ email });
-
+  
       if (user) {
         return res.status(400).json({ msg: "User already exists" });
       }
@@ -126,8 +126,10 @@ const accountLogin = async (req, res) => {
       const payload = {
         user: {
           id: user._id,
+          email : user.email,
           username: user.firstName + (user.lastName ? " " + user.lastName : ""),
-          profilePicture : user.profilePicture
+          profilePicture : user.profilePicture,
+          
         },
       };
 
@@ -356,6 +358,22 @@ const getProfilePicture = async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
     }
   };
+
+  // const friendSuggestions = async(req,res) => {
+  //   const userId = req.params.id ;
+  //   try{
+  //     const user = await FacebookModel.findById(userId) ;
+  //     if(!user){
+  //       return res.status(404).json({message : 'User not found!'})
+  //     }
+  //     const userFriends = user.friends ;
+
+  //   } catch(error){
+  //     console.log(error) ;
+  //     return res.status(500).json({error: 'Internal server error'})
+  //   }
+  // }
+  
   const deleteAccount = async (req, res) => {
     try {
       const userId = req.params.userId;
@@ -501,4 +519,23 @@ const addFriendButtonTextChange = async (req,res)=>{
     return res.status(500).json({message : 'Error while updating the addFriend button text'})
   }
 }
-module.exports = {updateprofile , createAccount, accountLogin, createPost, getPosts, getPost, getProfilePicture, deletePost , updatePostContent, getAllUsers, deleteAccount, addFriend, friendRequests, rejectFriendRequest, acceptFriendRequest, addFriendButtonTextChange} 
+const getFriends = async (req, res) => {
+  const { emailId } = req.query;
+
+  try {
+    const user = await FacebookModel.findOne({ email: emailId });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const userFriends = user.friends;
+    // console.log(userFriends.requestUser)
+    return res.status(200).json({ message: 'User friends retrieved successfully', userFriends });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Error getting user friends' });
+  }
+};
+
+module.exports = {updateprofile , createAccount, accountLogin, createPost, getPosts, getPost, getProfilePicture, deletePost , updatePostContent, getAllUsers, deleteAccount, addFriend, friendRequests, rejectFriendRequest, acceptFriendRequest, addFriendButtonTextChange, getFriends} 

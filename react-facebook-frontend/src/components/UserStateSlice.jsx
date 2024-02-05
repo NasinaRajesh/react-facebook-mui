@@ -4,9 +4,10 @@ export const UserStateSlice = createSlice({
     name : 'Userdetails',
     initialState : {
         user : [],
-        auth0user : []
+        auth0user : [],
+        openNewmessageBox : false
     },
-
+    
     reducers : {
         getloggedUserDetails : (state, action) => {
             state.user = action.payload ;
@@ -23,9 +24,12 @@ export const UserStateSlice = createSlice({
         },
         logOutAuth0User : (state) => {
             state.auth0user = {} ;
+        },
+        openNewmessageBox : (state) => {
+            state.openNewmessageBox = !state.openNewmessageBox ;
         }
     }
 })
 
-export const {getloggedUserDetails , logOutUser, updateProfilePicture, getAuth0LoggedUser, logOutAuth0User} = UserStateSlice.actions ; 
+export const {getloggedUserDetails , logOutUser, updateProfilePicture, getAuth0LoggedUser, logOutAuth0User, openNewmessageBox} = UserStateSlice.actions ; 
 export default UserStateSlice.reducer ;

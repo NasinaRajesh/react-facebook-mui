@@ -26,8 +26,9 @@ import { useDispatch } from "react-redux";
 import { logOutUser } from "../UserStateSlice";
 import { updateProfilePicture } from "../UserStateSlice";
 import CustomSnackbar from "../CustomSnackbar";
+import MuiConfirmModal from "../MuiConfirmModal";
 
-function Navbar({ onPostAdded }) {
+function Navbar({ onPostAdded, onFriendRequestAccecpt }) {
   const dispatch = useDispatch();
   const selector = useSelector((state) => state.LoggedUser.user);
   if (selector) {
@@ -49,6 +50,11 @@ function Navbar({ onPostAdded }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false) ;
   const [snackbarSeverity, setSnackbarSeverity] = useState("") ;
   const [snackbarMessage, setSnackbarMessage] = useState("") ;
+
+  const [userIdToDelete, setUserIdToDelete] = useState(null) ;
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false) ;
+  
+
   //image upload
   const handleImageUpload = (file) => {
     setIsNewImageSelected(true); // Set to true when a new image is selected
@@ -145,25 +151,44 @@ function Navbar({ onPostAdded }) {
     dispatch(logOutUser());
     navigatesTo("/");
   };
-
-  const handleDeleteAccount = (userId) => {
-    const confirm = window.confirm("Are you sure you want to delete");
-    if (confirm) {
+  const handleCancelDelete = () => {
+    setUserIdToDelete(null);
+    setConfirmModalOpen(false);
+  };
+  const handleDeleteClick = (userId) => {
+    setUserIdToDelete(userId);
+    setConfirmModalOpen(true);
+  };
+  const handleConfirm = () => {
+    
+    if (userIdToDelete) {
       axios
-        .delete(`${urls.deleteAccount}/${userId}`)
+        .delete(`${urls.deleteAccount}/${userIdToDelete}`)
         .then((res) => {
           console.log(res);
           localStorage.clear();
-          dispatch(logOutUser());
-          navigatesTo("/");
+          setTimeout(()=>{
+            dispatch(logOutUser());
+            navigatesTo("/");
+          },500) 
+          setSnackbarSeverity("success") 
+          setSnackbarMessage(res.data.message) ;
+          setSnackbarOpen(true) 
+          
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          console.log(error) ;
+          setSnackbarSeverity("error") ;
+          setSnackbarMessage(error.response.data.error) ;
+          setSnackbarOpen(true)
+        });
     }
   };
   console.log(friendRequests);
   useEffect(()=>{
     const userId = selector.user.id ;
-    handleFriendRequests(userId)
+    handleFriendRequests(userId) ;
+    
   },[selector.user.id])
   
   const handleFriendRequests = (userId) => {
@@ -199,12 +224,13 @@ function Navbar({ onPostAdded }) {
     const userId = selector.user.id ;
     const requestId = requestUser.userId ;
     axios.post(`${urls.acceptFriendRequest}?userId=${userId}&requestId=${requestId}`,{
-      requestUser : requestUser
+      userId : requestUser.userId , username : requestUser.username, profilePicture : requestUser.profilePicture ,email : requestUser.email
     })
     .then((res)=> {
       console.log(res)
       setTimeout(()=> {
         handleFriendRequests(userId)
+        onFriendRequestAccecpt()
       },1000)
       setSnackbarSeverity("success") ;
       setSnackbarMessage(res.data.message) ;
@@ -225,8 +251,10 @@ function Navbar({ onPostAdded }) {
       setSnackbarOpen(false) ;
           
   }
+
+  
   return (
-    <AppBar position="sticky">
+    <AppBar position="sticky" >
       <StyledToolbar>
         <Typography variant="h6" sx={{ display: { xs: "none", sm: "block" } }}>
           Facebook
@@ -368,7 +396,7 @@ function Navbar({ onPostAdded }) {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            handleDeleteAccount(selector.user.id);
+            handleDeleteClick(selector.user.id);
 
             closeMenu();
           }}
@@ -376,6 +404,11 @@ function Navbar({ onPostAdded }) {
           Delete account
         </MenuItem>
       </Menu>
+      <MuiConfirmModal
+        open={confirmModalOpen}
+        handleClose={handleCancelDelete}
+        handleConfirm={handleConfirm}
+      />
       <CustomSnackbar
         open={snackbarOpen}
         onClose={handleSnackbarClose}
