@@ -77,6 +77,7 @@ function ChatCard({setChatCardOpen, chatCardOpen, chatFriendDetails }) {
     
   }
   const getSenderMessages = ()=> {
+    // i need to include chatFriendDetails.userId while get api call to get particular chat user messages
     axios.get(`${urls.getSenderMessages}${loggedUserId}`)
     .then(res=> {
       console.log(res.data.senderMessages);

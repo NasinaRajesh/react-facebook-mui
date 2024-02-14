@@ -759,22 +759,29 @@ const sendMessage = async (req, res) => {
     return res.status(500).json({message:'Internal server error'})
   }
 }
-const getSenderMessages = async (req,res)=>{
-  const userId = req.params.userId ;
-  console.log(userId)
-  try{
-    const sender = await FacebookModel.findById(userId);
-    if(!sender){
-      return res.status(404).json({message: "Sender not found"})
+const getSenderMessages = async (req, res) => {
+  const userId = req.params.userId;
+  const friendId = req.query.friendId;
+
+  try {
+    // Validate if userId and friendId are valid ObjectId strings
+    if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(friendId)) {
+      return res.status(400).json({ message: 'Invalid user ID or friend ID' });
     }
-    const senderMessages = sender.sentMessages ;
-    return res.status(200).json({senderMessages})
+
+    const sender = await FacebookModel.findById(userId);
+    if (!sender) {
+      return res.status(404).json({ message: 'Sender not found' });
+    }
+
+    // Filter sent messages for the specific friend ID
+    const senderMessages = sender.sentMessages.filter(message => message.receiver == friendId);
+    return res.status(200).json({ senderMessages });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ Error: 'Error while retrieving sender messages' });
   }
-  catch(error){
-    console.log(error) ;
-    return res.status(500).json({Error : "Error while retrieving sender messages"})
-  }
-}
+};
 
 const getReceivedMessages = async (req,res)=>{
   const userId = req.params.userId ;
