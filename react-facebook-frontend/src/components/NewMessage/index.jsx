@@ -11,7 +11,8 @@ import {
   Card,
   CardContent,
   Badge,
-  Avatar
+  Avatar,
+  useMediaQuery
 } from "@mui/material";
 import { BorderColor, Close } from "@mui/icons-material";
 import { useSelector } from "react-redux";
@@ -94,8 +95,9 @@ function NewMessage({mode}) {
 
   }
   console.log('chatCardOpen'  , chatCardOpen, 'openModal :' ,openModal, 'openNewmessageBoxSelector : ', openNewmessageBoxSelector) 
+  const displayBox = useMediaQuery('(min-width:820px)')
   return (
-    <Box>
+    <Box sx={{display: displayBox ? "block" : "none"}}>
       <Tooltip
         onClick={() =>{ setOpenModal(!openModal) ; setChatCardOpen(false)}}
         title="New message"

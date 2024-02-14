@@ -224,7 +224,18 @@ function Navbar({ onPostAdded, onFriendRequestAccecpt }) {
     const userId = selector.user.id ;
     const requestId = requestUser.userId ;
     axios.post(`${urls.acceptFriendRequest}?userId=${userId}&requestId=${requestId}`,{
-      userId : requestUser.userId , username : requestUser.username, profilePicture : requestUser.profilePicture ,email : requestUser.email
+      loggedInUser: {
+        userId: selector.user.id,
+        username: selector.user.username,
+        profilePicture: selector.user.profilePicture,
+        email: selector.user.email
+      },
+      requestUser: {
+        userId: requestUser.userId,
+        username: requestUser.username,
+        profilePicture: requestUser.profilePicture,
+        email: requestUser.email
+      }
     })
     .then((res)=> {
       console.log(res)
@@ -255,11 +266,12 @@ function Navbar({ onPostAdded, onFriendRequestAccecpt }) {
   
   return (
     <AppBar position="sticky" >
+      
       <StyledToolbar>
-        <Typography variant="h6" sx={{ display: { xs: "none", sm: "block" } }}>
+        <Typography  onClick={()=> window.location.reload()} variant="h6" sx={{ display: { xs: "none", sm: "block" } , cursor:"pointer"}}>
           Facebook
         </Typography>
-        <Facebook sx={{ display: { xs: "block", sm: "none" } }} />
+        <Facebook onClick={()=> window.location.reload()} sx={{ display: { xs: "block", sm: "none" } }} />
         <Search>
           <InputBase placeholder="Search..." />
         </Search>
@@ -294,7 +306,7 @@ function Navbar({ onPostAdded, onFriendRequestAccecpt }) {
                   friendRequests.length > 0 ? friendRequests.map((request, index) => (
                     <Card
                     key={request.userId}
-                    sx={{ width: 300, height: 130, marginBottom: 1 , marginTop:1}}
+                    sx={{ width: 300, height: 110, marginBottom: 1 , marginTop:1}}
                   >
                     <CardContent>
                       <Box
@@ -315,9 +327,9 @@ function Navbar({ onPostAdded, onFriendRequestAccecpt }) {
                           <Avatar
                             src={request.profilePicture}
                             alt="User Avatar"
-                            sx={{ width: 60, height: 60, marginRight: 1, }}
+                            sx={{ width: 40, height: 40, marginRight: 1, }}
                           />
-                          <Typography variant="h6" component="div">
+                          <Typography variant="h6" component="div" sx={{fontSize:15}}>
                             {request.username}
                           </Typography>
                         </Box>
@@ -344,7 +356,7 @@ function Navbar({ onPostAdded, onFriendRequestAccecpt }) {
               }}
             ></Avatar>
           </Box>
-          <Typography variant="span">{selector.user.username}</Typography>
+          <Typography onClick={()=> setOpen(true)} variant="span">{selector.user.username}</Typography>
         </Icon>
         <UserBox>
           <Box sx={{ display: "flex" }}>
@@ -356,7 +368,7 @@ function Navbar({ onPostAdded, onFriendRequestAccecpt }) {
                 setOpen(true);
               }}
             ></Avatar>
-            <Typography variant="span">{selector.user.username}</Typography>
+            {/*<Typography variant="span">{selector.user.username}</Typography> */}   
           </Box>
         </UserBox>
       </StyledToolbar>

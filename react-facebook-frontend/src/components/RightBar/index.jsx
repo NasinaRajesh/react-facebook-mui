@@ -8,6 +8,7 @@ import {
   Typography,
   Snackbar,
   Alert,
+  useMediaQuery
 } from "@mui/material";
 
 import axios from "axios";
@@ -23,6 +24,7 @@ import CustomSnackbar from "../CustomSnackbar";
 import OnlineFriendsCard from "./OnlineFriendsCard";
 
 
+
 function RightBar({ postDeleted, acceptedRequest, mode, setOpenNewmessage, openNewmessage }) {
   const selector = useSelector((state) => state.LoggedUser.user);
   const profilePicture = useSelector(
@@ -32,7 +34,7 @@ function RightBar({ postDeleted, acceptedRequest, mode, setOpenNewmessage, openN
   const [userPosts, setUserPosts] = useState([]);
   const [loading, setLoading] = useState(true); // State to track loading status
   const [allUsers, setAllUsers] = useState([]);
-
+  const [suggestions, setSuggestions] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -41,14 +43,16 @@ function RightBar({ postDeleted, acceptedRequest, mode, setOpenNewmessage, openN
   const [snackbarSeverity, setSnackbarSeverity] = useState("");
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [friends, setFriends] = useState(false) ;
-
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+  const [toggleAddFriendText, setToggleAddFriendText] = useState(null)
   const fetchFriends = () => {
     const emailId = selector.user.email ;
     // console.log(emailId, "dfdashfbisfbsif")
     axios.get(`${urls.getFriends}?emailId=${emailId}`)
     .then((res)=>{
+      setLoading(false)
       setFriends(res.data.userFriends)
-      console.log(res.data.userFriends)
+      console.log(res.data.userFriends, "res logged user friends")
     })
     .catch((error)=>console.log(error))
   }
@@ -57,9 +61,10 @@ function RightBar({ postDeleted, acceptedRequest, mode, setOpenNewmessage, openN
     axios
       .get(`${urls.getposts}/${userId}`)
       .then((res) => {
-        console.log(res);
-        setLoading(false);
+        console.log(res, "User Posts response to display latest images");
+        //setLoading(false);
         setUserPosts(res.data.data.posts);
+        
       })
       .catch((err) => console.log(err));
   };
@@ -75,13 +80,43 @@ function RightBar({ postDeleted, acceptedRequest, mode, setOpenNewmessage, openN
       .catch((err) => console.log(err));
   };
 
+  const fetchFriendSuggestions = () => {
+    axios
+      .get(`${urls.friendSuggestions}${userId}`)
+      .then((res) => {
+        setSuggestions(res.data.friendSuggestions);
+        setLoading(false)
+        console.log("friend suggestions response", res.data.friendSuggestions);
+       
+      })
+      .catch((err) => console.log(err));
+  };
+
+  function filterFriendSuggestions(){
+    const filteredSuggestions = suggestions.filter(suggestion =>
+      !friends.some(friend => friend.userId === suggestion.userId)
+    );
+  
+      return filteredSuggestions
+  }
+
+
   useEffect(() => {
     if (selector) {
       FetchUserPostDetails();
       FetchAllUsers();
       fetchFriends() ;
+      fetchFriendSuggestions() ;
+      
     }
   }, [userId, selector, requestSent, postDeleted, acceptedRequest]);
+ console.log(suggestions, "before updated suggestions")
+  useEffect(() => {
+    if (suggestions.length > 0 && friends.length >= 0) {
+      const filtered = filterFriendSuggestions();
+      setFilteredSuggestions(filtered);
+    }
+  }, [suggestions, friends]);
 
   const handleImageClick = (postId) => {
     setSelectedImage(postId);
@@ -98,19 +133,34 @@ function RightBar({ postDeleted, acceptedRequest, mode, setOpenNewmessage, openN
     setSnackbarOpen(false);
   };
   const handleAddFriendClick = (friend) => {
-    // setAllUsers((prevUsers) => prevUsers.filter((u) => u._id !== user._id));
-    //console.log(selector.user.profilePicture);
-    //toggleAddFriendButtonText(friend._id);
+    
     axios
-      .post(`${urls.addFriend}?userId=${userId}&friendId=${friend._id}`, {
+      .post(`${urls.addFriend}?userId=${userId}&friendId=${friend.userId}`, {
         username: selector.user.username,
         profilePicture: profilePicture,
       })
       .then((res) => {
+        const filtered = filterFriendSuggestions();
+        setFilteredSuggestions(filtered);
+        // Update the addFriend text for the specific friend suggestion
         console.log(res);
+        // console.log(res.data.user.friendSuggestions[4].addFriend, "friend suggestions add friend fild");
+        console.log(res.data.requestedUserIndex, "requested user index")
+        setToggleAddFriendText(res.data.user.friendSuggestions[res.data.requestedUserIndex].addFriend)
         setSnackbarSeverity("success");
         setSnackbarMessage(res.data.message);
-        setSnackbarOpen(true);
+        setSnackbarOpen(true); 
+
+        const updatedSuggestions = suggestions.map(suggestion => {
+          if (suggestion.userId === friend.userId) {
+            console.log(suggestion.userId)
+            return { ...suggestion, addFriend: true };
+          }
+          return suggestion;
+        });
+        setSuggestions(updatedSuggestions);
+        console.log("after updated suggestions  ", suggestions);
+        console.log(friend)
       })
       .catch((error) => {
         console.log(error.response.data.message);
@@ -121,7 +171,7 @@ function RightBar({ postDeleted, acceptedRequest, mode, setOpenNewmessage, openN
   };
 
   const toggleAddFriendButtonText = (userId) => {
-    console.log("toggleAddFriendButtonText called", userId);
+    console.log("toggleAddFriendButtonText function called", userId);
     //const userId = selector.user.id;
     axios
       .patch(`${urls.toggleAddFriendButtonText}/${userId}`)
@@ -131,8 +181,11 @@ function RightBar({ postDeleted, acceptedRequest, mode, setOpenNewmessage, openN
       })
       .catch((error) => console.log(error));
   };
+
+  const displayBox = useMediaQuery('(min-width: 820px)');
+
   return (
-    <Box flex={2} p={2} sx={{ display: { xs: "none", sm: "block" } }}>
+    <Box flex={1} p={2} sx={{ display: displayBox ? 'block' : 'none' }}>
       <Box position="static" sx={{ width: "300px" }}>
         <Typography component="h6" mt={2} mb={2}>
           Online friends
@@ -152,13 +205,13 @@ function RightBar({ postDeleted, acceptedRequest, mode, setOpenNewmessage, openN
           </Typography>
         ) : (
           <Box display="flex" flexDirection="column">
-            {allUsers
+            {filteredSuggestions
               .slice()
               .reverse()
               .map((user, index) => (
                 <Card
                   key={user._id}
-                  sx={{ width: 300, height: 130, marginBottom: 1 }}
+                  sx={{ width: 300, height: 110, marginBottom: 1 }}
                 >
                   <CardContent>
                     <Box
@@ -179,39 +232,23 @@ function RightBar({ postDeleted, acceptedRequest, mode, setOpenNewmessage, openN
                         <Avatar
                           src={user.profilePicture}
                           alt="User Avatar"
-                          sx={{ width: 60, height: 60, marginRight: 1 }}
+                          sx={{ width: 40, height: 40, marginRight: 1 }}
                         />
-                        <Typography variant="h6" component="div">
+                        <Typography variant="h6" component="div" sx={{ fontSize: 15}}>
                           {`${user.firstName} ${
                             user.lastName ? user.lastName : ""
                           }`}
                         </Typography>
                       </Box>
                       <Box mt={1}>
-                        {/* <AddFriendButton
-                          onClick={() => handleAddFriendClick(user)}
-                          requestSent={requestSent}
-                        /> */}
-                        {user.addFriend ? (
-                          <AddFriendButton
-                            onClick={() => handleAddFriendClick(user)}
-                            requestSent={requestSent}
-                            buttonText="Requested"
-                          />
-                        ) : (
-                          <AddFriendButton
-                            onClick={() => handleAddFriendClick(user)}
-                            requestSent={requestSent}
-                            buttonText="Add Friend"
-                          />
-                        )}
+                        <Button onClick={()=> handleAddFriendClick(user)} variant="contained" sx={{height:30, textTransform:'none'}}>{user.addFriend?"Request sent" : "Add Friend"}</Button>
                       </Box>
                     </Box>
                   </CardContent>
                 </Card>
               ))}
             <Box>
-              {allUsers.length <= 0 && (
+              {filteredSuggestions.length <= 0 && (
                 <Typography variant="body2" sx={{ textAlign: "center" }}>
                   Friends suggestions are not available at the moment...
                 </Typography>
@@ -220,14 +257,12 @@ function RightBar({ postDeleted, acceptedRequest, mode, setOpenNewmessage, openN
           </Box>
         )}
 
-        <Typography component="h6" mt={2} mb={2}>
-          Latest Photos
-        </Typography>
-        {loading ? (
-          <Typography variant="body2" sx={{ textAlign: "center" }}>
-            Loading...
+        
+        {userPosts.length>0 && 
+          <>
+          <Typography component="h6" mt={2} mb={2}>
+            Latest Photos
           </Typography>
-        ) : (
           <ImageList cols={4} rowHeight={100} gap={3}>
             {/* Map over userPosts and create ImageListItem components */}
             {userPosts
@@ -248,7 +283,8 @@ function RightBar({ postDeleted, acceptedRequest, mode, setOpenNewmessage, openN
                   )
               )}
           </ImageList>
-        )}
+          </>
+        }
 
         {/* Modal to display the selected image */}
         {modalOpen && (

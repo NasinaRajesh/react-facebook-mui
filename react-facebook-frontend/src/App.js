@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState } from "react";
 import SideBar from "./components/SideBar";
-
+import './App.css'
 import RightBar from "./components/RightBar";
 import Feed from "./components/Feed";
 import { Box, Stack, ThemeProvider, Typography, createTheme } from "@mui/material";
@@ -54,10 +54,10 @@ function App() {
     return (
       <Box bgcolor={"background.default"} color={"text.primary"} >
         <Navbar  onPostAdded={() => setPostAdded(!postAdded)} onFriendRequestAccecpt={()=> setAcceptedRequest(!acceptedRequest)} />
-        <Stack direction="row" spacing={2} justifyContent="space-between">
+        <Stack direction="row" spacing={2} justifyContent="space-between" >
           <SideBar mode={mode} setMode={setMode} />
 
-          <Feed
+          <Feed 
             postAdded={postAdded}
             onPostAdded={() => setPostAdded(!postAdded)}
             setOnEditClick={setOnEditClick}

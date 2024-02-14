@@ -150,9 +150,10 @@ import CustomSnackbar from "../CustomSnackbar";
     setSnackbarOpen(false);
   };
   return (
-    <Box flex={3} p={2} >
-      <Box >
+    <Box flex={2} p={1}  >
       
+      <Box >
+          
         {isLoading ? (
          <Typography variant="body1" sx={{ textAlign: "center", py: 2 }}>
           <CircularProgress />
