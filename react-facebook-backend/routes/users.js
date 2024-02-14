@@ -73,5 +73,11 @@ router.post('/accept-friend-request', FacebookController.acceptFriendRequest ) ;
 router.patch('/add-friend-button/:userId', FacebookController.addFriendButtonTextChange ) ;
 
 router.get('/get-friends', FacebookController.getFriends) ; 
+router.get('/friend-suggestions/:userId', FacebookController.friendSuggestions)
 
+router.get('/get-user/:userId', FacebookController.getSingleUser) ;
+// send message route 
+router.post('/send-message', FacebookController.sendMessage) ;
+router.get('/get-sender-messages/:userId', FacebookController.getSenderMessages);
+router.get('/get-received-messages/userId' , FacebookController.getReceivedMessages) ;
 module.exports = router;

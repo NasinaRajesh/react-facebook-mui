@@ -17,7 +17,10 @@ export const urls = {
     rejectFriendRequest : `${server}/reject-friend-requests`,
     acceptFriendRequest : `${server}/accept-friend-request` ,
     toggleAddFriendButtonText : `${server}/add-friend-button`,
-   
+   friendSuggestions :  `${server}/friend-suggestions/`,
+   sendMessage : `${server}/send-message` ,
+   getSenderMessages : `${server}/get-sender-messages/`,
+   getReceivedMessages : `${server}/get-received-messages/`
 }
 
 export const auth0urls = {

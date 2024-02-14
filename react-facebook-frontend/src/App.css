@@ -1,0 +1,7 @@
+.check{
+    color: red;
+}
+
+.css-1a3p8mp-MuiStack-root>:not(style)~:not(style) {
+    margin-left:0 !important;
+}

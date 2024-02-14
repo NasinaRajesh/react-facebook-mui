@@ -7,7 +7,7 @@ import {
   ListItemIcon,
   ListItemText,
   Switch,
-  
+  useMediaQuery
 } from "@mui/material";
 import {
   AccountBox,
@@ -20,9 +20,11 @@ import {
   Storefront,
   
 } from "@mui/icons-material";
+
 function SideBar({ mode, setMode }) {
+  const displayBox = useMediaQuery('(min-width: 820px)');
   return (
-    <Box flex={1} p={2}  sx={{ display: { xs: "none", sm: "block" } ,  }}>
+    <Box flex={1} p={2}  sx={{ display: displayBox ? "block" : "none" , minWidth:'200px' }}>
       <Box position="fixed"  >
         <List>
           <ListItem disablePadding>

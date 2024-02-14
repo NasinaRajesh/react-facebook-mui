@@ -22,12 +22,16 @@ const StyledInput = styled(Input)(
   })
 )
 
-const CustomInput = () => {
-  
+const CustomInput = ({onChange, inputValue}) => {
+  const handleInputChange = (event) => {
+    onChange(event.target.value)
+  }
   return (
-    <Input 
+    <Input fullWidth
       className='test '
       placeholder="Aa"
+      value={inputValue}
+      onChange={handleInputChange}
       // endAdornment={
       //   <InputAdornment position="end">
       //     <IconButton>
